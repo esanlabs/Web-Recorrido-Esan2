@@ -1,0 +1,3099 @@
+﻿﻿<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <title>Tour ESAN 360 - Experiencia VR Premium</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"></script>
+    <script src="https://unpkg.com/aframe-troika-text/dist/aframe-troika-text.min.js"></script>
+
+    <script
+        src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.2.2/dist/aframe-physics-system.min.js"></script>
+
+    <style>
+        :root {
+            /* Tipografía */
+            --font-titulo: 'Bricolage Grotesque', sans-serif;
+            --font-cuerpo: 'Inter', sans-serif;
+            /* Colores corporativos ESAN */
+            --color-primario:   #E3173E;   /* RGB 227,23,62  */
+            --color-secundario: #696A6D;   /* RGB 105,106,109 */
+            --color-negro:      #000000;
+            --color-blanco:     #FFFFFF;
+        }
+        * { font-family: var(--font-cuerpo); }
+
+        #pantalla-carga {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #E3173E, #E3173E);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: opacity 1s ease, transform 1s ease;
+        }
+
+        .oculto {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(1.1);
+        }
+
+        /* btn-menu-2d oculto — reemplazado por panel lateral */
+        #btn-menu-2d { display: none; }
+
+        #btn-capturar {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            background-color: #E3173E;
+            color: white;
+            border: 2px solid white;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 100;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        #btn-capturar:hover {
+            background-color: #00BFFF;
+        }
+
+        .a-enter-vr #btn-menu-2d,
+        .a-enter-vr #btn-capturar {
+            display: none;
+        }
+        #dbg-panel {
+            position: fixed; bottom: 12px; left: 12px;
+            background: rgba(0,0,0,0.75); color: #00FF88;
+            font-family: monospace; font-size: 13px;
+            padding: 8px 12px; border-radius: 6px;
+            z-index: 9999; pointer-events: none;
+            display: none; line-height: 1.7;
+        }
+        #dbg-panel.on { display: block; }
+        #dbg-btn {
+            position: fixed; bottom: 12px; right: 12px;
+            background: rgba(0,0,0,0.75); color: #00FF88;
+            font-family: monospace; font-size: 12px;
+            padding: 6px 12px; border-radius: 6px;
+            z-index: 9999; cursor: pointer;
+            border: 1px solid #00FF88;
+        }
+
+        /* ── 2D INFO CARD ─────────────────────────────────────── */
+        :root {
+            --esan-red:    var(--color-primario);
+            --esan-gray:   var(--color-secundario);
+            --esan-dark:   #1a1a2e;
+            --radius-card: 18px;
+            --shadow-card: 0 24px 64px rgba(0,0,0,0.45);
+        }
+        #card-backdrop {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            opacity: 0; pointer-events: none;
+            transition: opacity .25s ease;
+        }
+        #card-backdrop.visible { opacity: 1; pointer-events: all; }
+
+        #info-card-2d {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -44%) scale(0.94);
+            width: min(420px, 92vw);
+            background: #fff;
+            border-radius: var(--radius-card);
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
+            z-index: 2001;
+            opacity: 0; pointer-events: none;
+            transition: opacity .28s ease, transform .28s cubic-bezier(.34,1.56,.64,1);
+        }
+        #info-card-2d.visible {
+            opacity: 1; pointer-events: all;
+            transform: translate(-50%, -50%) scale(1);
+        }
+        .ic-img-wrap {
+            position: relative;
+            width: 100%; height: 170px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #E3173E 0%, #7a0020 100%);
+        }
+        .ic-img-wrap img {
+            width: 100%; height: 100%;
+            object-fit: cover; object-position: center;
+            display: block;
+            filter: brightness(0.82);
+        }
+        .ic-img-logo {
+            position: absolute; inset: 0;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .ic-img-logo span {
+            color: rgba(255,255,255,0.18);
+            font-size: 80px; font-weight: 900;
+            font-family: var(--font-cuerpo);
+            letter-spacing: -4px; user-select: none;
+        }
+        .ic-close {
+            position: absolute; top: 12px; right: 12px;
+            width: 34px; height: 34px;
+            background: rgba(0,0,0,0.55);
+            border: none; border-radius: 50%;
+            color: #fff; font-size: 16px;
+            cursor: pointer; display: flex;
+            align-items: center; justify-content: center;
+            transition: background .18s;
+            z-index: 10;
+        }
+        .ic-close:hover { background: var(--esan-red); }
+        .ic-body {
+            padding: 20px 24px 24px;
+        }
+        .ic-scene-tag {
+            display: inline-block;
+            background: #fde8ec; color: var(--esan-red);
+            font-size: 10px; font-weight: 700;
+            letter-spacing: 1.2px; text-transform: uppercase;
+            padding: 3px 10px; border-radius: 20px;
+            margin-bottom: 10px;
+        }
+        .ic-title {
+            font-family: var(--font-titulo);
+            font-size: 17px; font-weight: 700;
+            color: var(--esan-red);
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            margin: 0 0 10px; line-height: 1.3;
+        }
+        .ic-desc {
+            font-family: var(--font-cuerpo);
+            font-size: 13.5px; color: var(--color-secundario);
+            line-height: 1.65; margin: 0;
+        }
+        .ic-divider {
+            height: 3px;
+            background: linear-gradient(90deg, var(--esan-red) 0%, transparent 100%);
+            border-radius: 2px; margin-bottom: 14px;
+        }
+
+        /* ── SIDE NAV ─────────────────────────────────────────── */
+        #sidenav {
+            position: fixed; top: 0; left: 0;
+            width: 230px; height: 100%;
+            background: var(--color-blanco);
+            border-right: 1px solid rgba(105,106,109,0.2);
+            z-index: 3000;
+            display: flex; flex-direction: column;
+            transform: translateX(0);
+            transition: transform 0.3s ease;
+            box-shadow: 4px 0 20px rgba(0,0,0,0.10);
+        }
+        #sidenav.cerrado { transform: translateX(-230px); }
+        #sidenav-toggle {
+            position: absolute; top: 50%; right: -26px;
+            transform: translateY(-50%);
+            width: 26px; height: 52px;
+            background: var(--color-blanco);
+            border: 1px solid rgba(105,106,109,0.2); border-left: none;
+            border-radius: 0 8px 8px 0;
+            color: var(--color-negro); cursor: pointer; font-size: 13px;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 4px 0 8px rgba(0,0,0,0.08);
+        }
+        /* H1 — Título principal del panel */
+        .sidenav-logo {
+            padding: 20px 16px 16px;
+            background: var(--color-primario);
+            font-family: var(--font-titulo);
+            font-size: 15px; font-weight: 700;
+            color: var(--color-blanco); letter-spacing: 1px; text-transform: uppercase;
+            flex-shrink: 0;
+        }
+        .sidenav-logo span { color: var(--color-blanco); opacity: 0.85; }
+        .sidenav-body {
+            flex: 1; overflow-y: auto; overflow-x: hidden;
+        }
+        .sidenav-body::-webkit-scrollbar { width: 3px; }
+        .sidenav-body::-webkit-scrollbar-thumb { background: rgba(105,106,109,0.3); border-radius: 2px; }
+        /* H2 — Subtítulos de categoría */
+        .sidenav-cat-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 9px 14px 8px;
+            background: rgba(105,106,109,0.10);
+            color: var(--color-secundario);
+            font-family: var(--font-cuerpo);
+            font-size: 10px; font-weight: 700;
+            letter-spacing: 1.8px; text-transform: uppercase;
+            cursor: pointer;
+            border-top: 1px solid rgba(105,106,109,0.12);
+            border-bottom: 1px solid rgba(105,106,109,0.12);
+            transition: background 0.2s, color 0.2s; user-select: none;
+        }
+        .sidenav-cat-header:hover { background: rgba(227,23,62,0.07); color: var(--color-primario); }
+        .sidenav-cat-arrow { transition: transform 0.2s; font-size: 8px; }
+        .sidenav-cat.cerrada .sidenav-cat-arrow { transform: rotate(-90deg); }
+        .sidenav-items { overflow: hidden; }
+        .sidenav-cat.cerrada .sidenav-items { display: none; }
+        /* H3 — Items de navegación */
+        .sidenav-item {
+            width: 100%; text-align: left;
+            padding: 9px 14px 9px 20px;
+            background: none; border: none;
+            border-left: 3px solid transparent;
+            color: var(--color-negro);
+            font-family: var(--font-cuerpo); font-size: 13px; font-weight: 400;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s, border-color 0.15s;
+        }
+        .sidenav-item:hover { background: rgba(227,23,62,0.06); color: var(--color-primario); }
+        .sidenav-item.activo {
+            background: rgba(227,23,62,0.08);
+            border-left-color: var(--color-primario);
+            color: var(--color-primario); font-weight: 700;
+        }
+        .sidenav-footer {
+            padding: 10px 14px 14px;
+            border-top: 1px solid rgba(105,106,109,0.15);
+            flex-shrink: 0;
+        }
+        .sidenav-link {
+            display: flex; align-items: center; gap: 6px;
+            color: var(--color-secundario);
+            font-size: 11.5px; font-family: var(--font-cuerpo); font-weight: 400;
+            text-decoration: none; padding: 7px 0;
+            transition: color 0.2s;
+        }
+        .sidenav-link:hover { color: var(--color-primario); }
+
+        /* ── 2D FLECHAS ───────────────────────────────────────── */
+        #flechas-2d-overlay {
+            position: fixed; inset: 0; pointer-events: none; z-index: 10;
+        }
+        #loading-bar {
+            position: fixed; bottom: 0; left: 0; height: 3px; width: 0%;
+            background: linear-gradient(90deg, #E3173E, #FF7070);
+            z-index: 200; display: none; opacity: 1;
+        }
+        .flecha-2d {
+            position: absolute; transform: translate(-50%, -50%);
+            pointer-events: auto; cursor: pointer;
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+            filter: drop-shadow(0 1px 4px rgba(0,0,0,0.8)) drop-shadow(0 3px 6px rgba(0,0,0,0.5));
+        }
+        .flecha-label {
+            background: rgba(30,30,30,0.82); color: #fff;
+            border-radius: 7px; padding: 3px 12px;
+            font-size: 12px; font-weight: bold; white-space: nowrap;
+            font-family: Arial, sans-serif;
+            opacity: 0; transition: opacity 0.18s ease;
+            pointer-events: none;
+        }
+        .flecha-2d:hover .flecha-label { opacity: 1; }
+
+        /* ── 2D HOTSPOTS ──────────────────────────────────────── */
+        #hotspots-2d-overlay {
+            position: fixed; inset: 0; pointer-events: none; z-index: 11;
+        }
+        .hotspot-2d {
+            position: absolute; transform: translate(-50%, -50%);
+            pointer-events: auto; cursor: pointer;
+        }
+        @keyframes hotspot-jump {
+            0%, 100% { transform: translate(-50%, -50%) translateY(0); }
+            40%       { transform: translate(-50%, -50%) translateY(-5px); }
+            70%       { transform: translate(-50%, -50%) translateY(-2px); }
+        }
+        .hotspot-2d:hover { animation: hotspot-jump 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) infinite; }
+        @keyframes spin360 { to { transform: rotate(360deg); } }
+        #freeze-overlay::after {
+            content: ''; position: absolute; inset: 0;
+            background: rgba(0,0,0,0.38);
+        }
+        #transition-overlay {
+            position: fixed; bottom: 22px; right: 22px;
+            z-index: 70; display: none; pointer-events: none;
+            align-items: center; gap: 10px;
+            background: rgba(0,0,0,0.62);
+            border-radius: 30px; padding: 10px 16px 10px 12px;
+        }
+        #transition-overlay.activo { display: flex; }
+        #transition-spinner {
+            width: 22px; height: 22px;
+            border: 3px solid rgba(255,255,255,0.25);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin360 0.7s linear infinite;
+            flex-shrink: 0;
+        }
+        #transition-label {
+            color: rgba(255,255,255,0.88);
+            font-size: 12px; font-family: sans-serif;
+            letter-spacing: 0.04em; white-space: nowrap;
+        }
+
+    </style>
+
+    <script>
+        const nombresDestinos = {
+            'fuera': 'Exterior ESAN',
+            'entrada': 'Entrada Principal', 'jardin': 'Jardin', 'fuente': 'Fuente',
+            'capilla': 'Capilla', 'fablab': 'FabLab', 'fablab2': 'FabLab 2',
+            'voley': 'Cancha de Voley', 'basquet': 'Cancha de Basquet',
+            'explanada': 'Explanada Convention', 'eventos': 'Eventos',
+            'butacas': 'Butacas', 'biblioteca': 'Biblioteca', 'danza': 'Danza',
+            'edificioD': 'Edificio D', 'conducta': 'Lab Conducta', 'edificioA': 'Edificio A',
+            'ecoesan': 'EcoESAN', 'aula': 'Aula', 'laboratorio': 'Lab de Computo',
+            'datalab': 'Data Lab', 'cafeteria': 'Cafeteria', 'cafeteria_interior': 'Cafeteria Interior',
+            'fisica': 'Lab de Fisica', 'quimica': 'Lab de Quimica',
+            'estudio_pregrado': 'Sala Estudio Pregrado', 'estudio_mba': 'Sala Estudio MBA',
+            'estudio_magister': 'Sala Estudio Magister', 'descanso_magister': 'Sala Descanso Magister',
+            'robotica': 'Lab Robotica'
+        };
+
+        AFRAME.registerGeometry('rounded-rect', {
+            schema: { width: { default: 1 }, height: { default: 1 }, radius: { default: 0.05 } },
+            init: function (data) {
+                var shape = new THREE.Shape();
+                var w = data.width / 2, h = data.height / 2, r = Math.min(data.radius, w, h);
+                shape.moveTo(-w + r, -h);
+                shape.lineTo(w - r, -h);
+                shape.quadraticCurveTo(w, -h, w, -h + r);
+                shape.lineTo(w, h - r);
+                shape.quadraticCurveTo(w, h, w - r, h);
+                shape.lineTo(-w + r, h);
+                shape.quadraticCurveTo(-w, h, -w, h - r);
+                shape.lineTo(-w, -h + r);
+                shape.quadraticCurveTo(-w, -h, -w + r, -h);
+                this.geometry = new THREE.ShapeGeometry(shape, 8);
+            }
+        });
+
+        AFRAME.registerComponent('rotate-with-camera', {
+            init: function () {
+                this._camEl = null;
+            },
+            tick: function () {
+                if (!this.el.sceneEl.camera) return;
+                if (!this._camEl) this._camEl = document.querySelector('[camera]');
+                var camRot = this._camEl && this._camEl.getAttribute('rotation');
+                if (camRot) this.el.setAttribute('rotation', { x: 0, y: camRot.y, z: 0 });
+            }
+        });
+
+
+        AFRAME.registerComponent('card-style', {
+            init: function () {
+                var panel = this.el;
+                setTimeout(function () {
+                    var bgPlane = panel.querySelector('a-plane:not(.close-btn)');
+                    if (!bgPlane) return;
+                    var w = parseFloat(bgPlane.getAttribute('width') || 4);
+                    bgPlane.parentNode.removeChild(bgPlane);
+
+                    var PAD_V = 0.22, GAP = 0.22;
+
+                    function mkPlane(color, width, height, px, py, pz, opacity, transparent) {
+                        var p = document.createElement('a-plane');
+                        p.setAttribute('color', color);
+                        p.setAttribute('width', width);
+                        p.setAttribute('height', height);
+                        p.setAttribute('position', px + ' ' + py + ' ' + pz);
+                        p.setAttribute('opacity', opacity);
+                        p.setAttribute('shader', 'flat');
+                        if (transparent) p.setAttribute('transparent', 'true');
+                        return p;
+                    }
+
+                    function mkTroika(value, color, fontSize, maxW) {
+                        var e = document.createElement('a-entity');
+                        e.setAttribute('troika-text', {
+                            value: value, color: color,
+                            fontSize: fontSize, maxWidth: maxW,
+                            textAlign: 'center', anchorX: 'center', anchorY: 'top'
+                        });
+                        return e;
+                    }
+
+                    function getTxtH(el) {
+                        var comp = el.components && el.components['troika-text'];
+                        if (!comp || !comp.troikaTextMesh || !comp.troikaTextMesh.textRenderInfo) return null;
+                        var bb = comp.troikaTextMesh.textRenderInfo.blockBounds;
+                        if (!bb) return null;
+                        return Array.isArray(bb) ? Math.abs(bb[3] - bb[1])
+                                                 : Math.abs((bb.top || 0) - (bb.bottom || 0));
+                    }
+
+                    var texts = Array.from(panel.querySelectorAll('a-text')).filter(function (t) {
+                        var par = t.parentElement;
+                        while (par && par !== panel) {
+                            if (par.classList && par.classList.contains('close-btn')) return false;
+                            par = par.parentElement;
+                        }
+                        return true;
+                    });
+
+                    var titleEl = null, descEl = null;
+                    if (texts[0]) {
+                        titleEl = mkTroika(texts[0].getAttribute('value') || '', '#E3173E', 0.22, w - 0.4);
+                        panel.appendChild(titleEl);
+                        texts[0].parentNode.removeChild(texts[0]);
+                    }
+                    if (texts[1]) {
+                        descEl = mkTroika(texts[1].getAttribute('value') || '', '#333333', 0.20, w - 0.4);
+                        panel.appendChild(descEl);
+                        texts[1].parentNode.removeChild(texts[1]);
+                    }
+
+                    var attempts = 0;
+                    function build() {
+                        var th = titleEl ? getTxtH(titleEl) : 0;
+                        var dh = descEl  ? getTxtH(descEl)  : 0;
+                        if (attempts++ < 300 && ((titleEl && th === null) || (descEl && dh === null))) {
+                            requestAnimationFrame(build); return;
+                        }
+                        th = th || (titleEl ? 0.34 : 0);
+                        dh = dh || (descEl  ? 0.24 : 0);
+
+                        var contentH = th + (dh > 0 ? GAP + dh : 0);
+                        var h = contentH + PAD_V * 2;
+                        var titleY = h / 2 - PAD_V;
+
+                        if (titleEl) titleEl.setAttribute('position', '0 ' + titleY.toFixed(3) + ' 0.06');
+                        if (descEl)  descEl.setAttribute('position',  '0 ' + (titleY - th - GAP).toFixed(3) + ' 0.06');
+
+                        panel.appendChild(mkPlane('#000000', (w+0.30).toFixed(2), (h+0.30).toFixed(2), '0.10','-0.10','-0.05','0.30',true));
+                        panel.appendChild(mkPlane('#E3173E', (w+0.16).toFixed(2), (h+0.16).toFixed(2), '0','0','-0.02','1',false));
+                        panel.appendChild(mkPlane('#FFFFFF', w, h.toFixed(2), '0','0','-0.01','1',false));
+
+                        var closeBtn = panel.querySelector('.close-btn');
+                        if (closeBtn) closeBtn.setAttribute('position',
+                            (w/2+0.10).toFixed(2) + ' ' + (h/2+0.10).toFixed(2) + ' 0.04');
+                    }
+                    requestAnimationFrame(build);
+                }, 0);
+            }
+        });
+
+        AFRAME.registerComponent('smooth-follow', {
+            init: function () {
+                this._cam = null;
+            },
+            tick: function () {
+                if (!this.el.object3D.visible) return;
+                if (!this._cam) {
+                    var el = document.querySelector('#camara-principal');
+                    if (!el) return;
+                    this._cam = el.object3D;
+                }
+                var cam = this._cam;
+                var targetPos = new THREE.Vector3(0, 0, -11);
+                targetPos.applyMatrix4(cam.matrixWorld);
+                var camWorldPos = new THREE.Vector3();
+                cam.getWorldPosition(camWorldPos);
+                targetPos.y = camWorldPos.y - 0.3;
+                this.el.object3D.position.copy(targetPos);
+                var lookAtPos = new THREE.Vector3().copy(camWorldPos);
+                lookAtPos.y = this.el.object3D.position.y;
+                this.el.object3D.lookAt(lookAtPos);
+            }
+        });
+
+        AFRAME.registerComponent('hotspot-info', {
+            schema: {
+                target: { type: 'string' },
+                action: { type: 'string', default: 'toggle' }
+            },
+            init: function () {
+                var el = this.el;
+                var data = this.data;
+
+                el.addEventListener('click', function (evt) {
+                    evt.stopPropagation();
+                    if (data.action === 'close') {
+                        hideCard2D();
+                    } else {
+                        showCard2D(data.target);
+                    }
+                });
+
+                el.addEventListener('mouseenter', function () {
+                    if (data.action !== 'close') el.setAttribute('scale', '0.9 0.9 0.9');
+                    else el.setAttribute('color', '#FF5555');
+                });
+                el.addEventListener('mouseleave', function () {
+                    if (data.action !== 'close') el.setAttribute('scale', '0.8 0.8 0.8');
+                    else el.setAttribute('color', '#FF0000');
+                });
+            }
+        });
+
+        const escenas = {
+            'entrada': {
+                imagen: '#img-entrada',
+                rotacionSky: '0 90 0',
+                flechas: [{ target: 'jardin', position: '1.42 2 8.15', rotation: '0 -155 0' }]
+            },
+            'jardin': {
+                imagen: 'imagenes/jardin.jpg', rotacionSky: '0 -90 0',
+                flechas: [
+                    { target: 'fuente', position: '-11.99 3 -0.5', rotation: '0 0 0' },
+                    { target: 'edificioD', position: '-0.17 3.2 -12', rotation: '0 -45 0' },
+                    { target: 'entrada', position: '9.12 3.1 -7.79', rotation: '0 150 0' }
+                ]
+            },
+            'capilla': {
+                imagen: 'imagenes/capilla.jpg', rotacionSky: '0 -90 0',
+                flechas: [
+                    { target: 'fablab', position: '19.73 -1 3.25', rotation: '0 110 0' },
+                    { target: 'jardin', position: '-19.29 -1 5.26', rotation: '0 -75 0' },
+                    { target: 'quimica', position: '-1.20 3.29 11.48', rotation: '0 -96 0' }
+                ]
+            },
+            'fablab': {
+                imagen: 'imagenes/fablab.jpg', rotacionSky: '0 -90 0',
+                flechas: [
+                    { target: 'voley', position: '9.96 2.43 -5.74', rotation: '0 120 0' },
+                    { target: 'basquet', position: '11.77 1.08 2.06', rotation: '0 80 0' },
+                    { target: 'capilla', position: '9.27 4.41 6.22', rotation: '0 56 0', imgSrc: '#img-flecha-derecha' },
+                    { target: 'fablab2', position: '0 -1 -10', rotation: '0 0 0' }
+                ]
+            },
+            'fablab2': {
+                imagen: 'imagenes/fablab%202.jpg', rotacionSky: '0 0 0',
+                flechas: [
+                    { target: 'fablab', position: '0 -1 -10', rotation: '0 0 0' }
+                ]
+            },
+            'voley': {
+                imagen: 'imagenes/voley.jpg', rotacionSky: '0 -90 0',
+                flechas: [
+                    { target: 'basquet', position: '11.71 2.57 0.41', rotation: '0 88 0' },
+                    { target: 'fablab', position: '14.51 -1 25.61', rotation: '0 50 0' }
+                ]
+            },
+            'basquet': {
+                imagen: 'imagenes/basquet.webp', rotacionSky: '0 -90 0',
+                flechas: [
+                    { target: 'voley', position: '-20 -1 25', rotation: '0 -45 0' },
+                    { target: 'explanada', position: '20 -1 -25', rotation: '0 140 0' },
+                    { target: 'fablab', position: '0 -1 25', rotation: '0 180 0' }
+                ]
+            },
+            'explanada': {
+                imagen: 'imagenes/conventionCenter.jpg', rotacionSky: '0 -90 0',
+                flechas: [
+                    { target: 'fisica',      position: '-11.43 2 -3.67', rotation: '0 0 0' },
+                    { target: 'basquet',     position: '0.85 2 -11.97',  rotation: '0 0 0' },
+                    { target: 'estudio_mba', position: '11.51 2 3.41',   rotation: '0 0 0' },
+                    { target: 'ecoesan',     position: '10.63 2 5.57',   rotation: '0 90 0', imgSrc: '#img-flecha-derecha' },
+                    { target: 'eventos',     position: '8.06 2 -8.89',   rotation: '0 0 0' }
+                ]
+            },
+            'ecoesan': {
+                imagen: 'imagenes/ecoesan.jpg', rotacionSky: '0 -90 0',
+                flechas: [
+                    { target: 'explanada', position: '10.48 2.95 -5.05', rotation: '0 116 0', imgSrc: '#img-flecha-izquierda' },
+                    { target: 'edificioA', position: '4.67 -1 20', rotation: '0 40 0', imgSrc: '#img-flecha-derecha' },
+                    { target: 'fuente', position: '-9.44 3.55 -6.50', rotation: '0 -125 0' },
+                    { target: 'cafeteria_interior', position: '-8.46 1.94 8.29', rotation: '0 -46 0' }
+                ]
+            },
+            'edificioA': {
+                imagen: 'imagenes/edificioA.jpg', rotacionSky: '0 -90 0',
+                flechas: [
+                    { target: 'ecoesan', position: '5.67 4.34 9.64', rotation: '0 30 0', imgSrc: '#img-flecha-derecha' },
+                    { target: 'edificioD', position: '-9 -1 -20', rotation: '0 -140 0', imgSrc: '#img-flecha-derecha' },
+                    { target: 'aula', position: '0 -1 -10', rotation: '0 0 0' },
+                    { target: 'laboratorio', position: '-10 -1 0', rotation: '0 -90 0' }
+                ]
+            },
+            'edificioD': {
+                imagen: 'imagenes/edificioD.jpg', rotacionSky: '0 -90 0',
+                flechas: [
+                    { target: 'edificioA', position: '-17.24 -1 10.13', rotation: '0 -70 0' },
+                    { target: 'jardin', position: '8.95 2 7.99', rotation: '0 -90 0', imgSrc: '#img-flecha-izquierda' },
+                    { target: 'datalab', position: '-4.29 7 11.21', rotation: '0 0 0', imgSrc: '#img-flecha-derecha' },
+                    { target: 'conducta', position: '-4.29 10 11.21', rotation: '0 0 0', imgSrc: '#img-flecha-derecha' }
+                ]
+            },
+            'conducta': {
+                imagen: 'imagenes/conducta.jpg', rotacionSky: '0 0 0',
+                flechas: [
+                    { target: 'edificioD', position: '0 -1 -10', rotation: '0 0 0', imgSrc: '#img-flecha-abajo' }
+                ]
+            },
+            'fuente': {
+                imagen: 'imagenes/fuente.jpg', rotacionSky: '0 50.5 0',
+                flechas: [
+                    { target: 'ecoesan', position: '1.38 2.62 -11.63', rotation: '0 173 0' },
+                    { target: 'edificioD', position: '20 -1 0.36', rotation: '0 120 0' },
+                    { target: 'capilla', position: '-9.85 3.34 5.30', rotation: '0 -62 0' }
+                ]
+            },
+            'datalab': {
+                imagen: 'imagenes/datalab.jpg', rotacionSky: '0 0 0',
+                flechas: [
+                    { target: 'edificioD', position: '0 -1 10', rotation: '0 180 0' },
+                    { target: 'aula', position: '10 -1 0', rotation: '0 90 0' },
+                    { target: 'laboratorio', position: '-10 -1 0', rotation: '0 -90 0' },
+                    { target: 'robotica', position: '-11.22 2 4.24', rotation: '0 0 0', imgSrc: '#img-flecha-derecha' }
+                ]
+            },
+            'aula': {
+                imagen: 'imagenes/aula.webp', rotacionSky: '0 0 0',
+                flechas: [
+                    { target: 'edificioA', position: '-0.44 2 -11.99', rotation: '0 0 0' },
+                    { target: 'datalab', position: '-10 -1 0', rotation: '0 -90 0' },
+                    { target: 'laboratorio', position: '10 -1 0', rotation: '0 90 0' }
+                ]
+            },
+            'laboratorio': {
+                imagen: 'imagenes/laboratorio%20computo.jpg', rotacionSky: '0 0 0',
+                flechas: [
+                    { target: 'edificioA', position: '0.25 2 -12.00', rotation: '0 0 0' },
+                    { target: 'datalab', position: '10 -1 0', rotation: '0 90 0' },
+                    { target: 'aula', position: '-10 -1 0', rotation: '0 -90 0' }
+                ]
+            },
+            'eventos': {
+                imagen: 'imagenes/eventos.jpg', rotacionSky: '0 -90 0',
+                flechas: [
+                    { target: 'biblioteca', position: '1.15 -1 20', rotation: '0 50 0' },
+                    { target: 'butacas', position: '20 -1 3.43', rotation: '0 110 0' },
+                    { target: 'danza', position: '5.21 -1 19.31', rotation: '0 50 0' },
+                    { target: 'explanada', position: '16.59 -1 -11', rotation: '0 150 0' }
+                ]
+            },
+            'butacas': { imagen: 'imagenes/butacas%20actualizado.jpg', rotacionSky: '0 -90 0', flechas: [{ target: 'eventos', position: '-8 5 25', rotation: '0 5 0' }, { target: 'biblioteca', position: '10.53 3.29 -4.71', rotation: '0 114 0', imgSrc: '#img-flecha-derecha' }] },
+            'biblioteca': { imagen: 'imagenes/biblioteca.jpg', rotacionSky: '0 -90 0', flechas: [{ target: 'eventos', position: '17 -1 20', rotation: '0 40 0' }] },
+            'danza': { imagen: 'imagenes/danza.jpg', rotacionSky: '0 -90 0', flechas: [{ target: 'eventos', position: '7 -1 -25', rotation: '0 180 0' }] },
+            'cafeteria': {
+                imagen: 'imagenes/cafeteria.jpeg', rotacionSky: '0 -90 0',
+                flechas: [
+                    { target: 'edificioA', position: '1.63 3.52 11.35', rotation: '0 8 0' },
+                    { target: 'ecoesan', position: '-11.77 2.20 -0.81', rotation: '0 -94 0' },
+                    { target: 'cafeteria_interior', position: '-6.52 1.22 10.00', rotation: '0 -33 0' },
+                    { target: 'quimica', position: '-9.50 3.18 -6.61', rotation: '0 -125 0' }
+                ]
+            },
+            'cafeteria_interior': {
+                imagen: 'imagenes/cafeteria_interior.jpg', rotacionSky: '0 -90 0',
+                flechas: [
+                    { target: 'cafeteria', position: '0 2.5 11', rotation: '0 180 0', label: 'Cafeteria Exterior' }
+                ]
+            },
+            'fuera': {
+                imagen: 'imagenes/fuera%20de%20esan.jpg', rotacionSky: '0 90 0',
+                flechas: [
+                    { target: 'entrada', position: '-10 2.5 -7.42', rotation: '0 0 0' }
+                ]
+            },
+            'fisica': {
+                imagen: 'imagenes/laboratorio%20de%20fisica.jpg', rotacionSky: '0 90 0',
+                flechas: [
+                    { target: 'quimica', position: '7.02 2.8 9.72', rotation: '0 360 0', imgSrc: '#img-flecha-abajo' }
+                ]
+            },
+            'quimica': {
+                imagen: 'imagenes/laboratorio%20de%20quimica.jpg', rotacionSky: '0 90 0',
+                flechas: [
+                    { target: 'datalab', position: '7.5 2.8 9.35', rotation: '0 0 0' },
+                    { target: 'fisica', position: '7.67 2.8 -9.21', rotation: '0 140 0' }
+                ]
+            },
+            'estudio_pregrado': {
+                imagen: 'imagenes/salas%20de%20estudio%20pregrado.jpg', rotacionSky: '0 90 0',
+                flechas: [
+                    { target: 'estudio_magister', position: '-9.54 2.8 7.27', rotation: '0 0 0' }
+                ]
+            },
+            'estudio_mba': {
+                imagen: 'imagenes/salas%20de%20estudio%20mba.jpg', rotacionSky: '0 180 0',
+                flechas: [
+                    { target: 'estudio_magister', position: '8.76 2.8 8.18', rotation: '0 0 0' },
+                    { target: 'descanso_magister', position: '1.14 2.8 11.94', rotation: '0 -176 0' }
+                ]
+            },
+            'estudio_magister': {
+                imagen: 'imagenes/salas%20de%20estudio%20magister.jpg', rotacionSky: '0 -90 0',
+                flechas: [
+                    { target: 'descanso_magister', position: '5.85 2.8 -11.35', rotation: '0 -195 0' },
+                    { target: 'estudio_mba', position: '9.38 4.29 -6.13', rotation: '0 33 0' },
+                    { target: 'estudio_pregrado', position: '10.09 0 -6.16', rotation: '0 244 0' },
+                    { target: 'cafeteria', position: '8.83 0 7.49', rotation: '0 139 0' }
+                ]
+            },
+            'descanso_magister': {
+                imagen: 'imagenes/sala%20de%20descanso%20magister.jpg', rotacionSky: '0 0 0',
+                flechas: [
+                    { target: 'estudio_magister', position: '9.10 2.8 -7.80', rotation: '0 0 0' },
+                    { target: 'estudio_mba', position: '8.22 2.8 -8.72', rotation: '0 137 0' }
+                ]
+            },
+            'robotica': {
+                imagen: 'imagenes/robotica.webp', rotacionSky: '0 -90 0',
+                flechas: [
+                    { target: 'datalab', position: '-9.25 2 -7.65', rotation: '0 0 0' }
+                ]
+            }
+        };
+
+        var _isDragging = false;
+        var _mousedownX = 0, _mousedownY = 0;
+        document.addEventListener('mousedown', function (e) {
+            _mousedownX = e.clientX; _mousedownY = e.clientY; _isDragging = false;
+        });
+        document.addEventListener('mousemove', function (e) {
+            if (e.buttons > 0) {
+                var dx = e.clientX - _mousedownX, dy = e.clientY - _mousedownY;
+                if (Math.sqrt(dx * dx + dy * dy) > 5) _isDragging = true;
+            }
+        });
+
+        AFRAME.registerComponent('billboard', {
+            init: function () {
+                this.el.object3D.frustumCulled = false;
+                this.el.object3D.traverse(function (o) { o.frustumCulled = false; });
+            },
+            tick: function () {
+                var cam = this.el.sceneEl.camera;
+                if (!cam) return;
+                this.el.object3D.quaternion.copy(cam.quaternion);
+            }
+        });
+
+        AFRAME.registerComponent('tour-logic', {
+            init: function () {
+                var el = this.el;
+                el.addEventListener('click', function (evt) {
+                    if (_isDragging) return;
+                    var target = el.getAttribute('data-target');
+                    var direccionDeseada = el.getAttribute('data-mirar');
+                    if (target && target !== "null") iniciarTransicion(target, direccionDeseada);
+                });
+                el.addEventListener('mouseenter', function () {
+                    el.setAttribute('animation__scale', 'property: scale; to: 2.1 2.1 2.1; dur: 200; easing: easeOutQuad');
+                    var etiqueta = el.querySelector('.etiqueta-flotante');
+                    if (etiqueta) etiqueta.setAttribute('visible', 'true');
+                });
+                el.addEventListener('mouseleave', function () {
+                    el.setAttribute('animation__scale', 'property: scale; to: 1.8 1.8 1.8; dur: 200; easing: easeOutQuad');
+                    var etiqueta = el.querySelector('.etiqueta-flotante');
+                    if (etiqueta) etiqueta.setAttribute('visible', 'false');
+                });
+            }
+        });
+
+        AFRAME.registerComponent('menu-interactivo', {
+            init: function () {
+                var el = this.el;
+                el.addEventListener('click', function () {
+                    var target = el.getAttribute('data-target');
+                    if (target) { toggleMenu3D(); iniciarTransicion(target, "0 0 0"); }
+                });
+                el.addEventListener('mouseenter', function () {
+                    el.setAttribute('material', 'color: #FFFFFF; opacity: 0.95');
+                    el.setAttribute('scale', '1.05 1.05 1.05');
+                    var txt = el.querySelector('a-text');
+                    if (txt) txt.setAttribute('color', '#E3173E');
+                });
+                el.addEventListener('mouseleave', function () {
+                    el.setAttribute('material', 'color: #E3173E; opacity: 0.95');
+                    el.setAttribute('scale', '1 1 1');
+                    var txt = el.querySelector('a-text');
+                    if (txt) txt.setAttribute('color', '#FFFFFF');
+                });
+            }
+        });
+
+        AFRAME.registerComponent('vr-controller-listener', {
+            init: function () {
+                this.el.addEventListener('abuttondown', toggleMenu3D);
+                this.el.addEventListener('xbuttondown', toggleMenu3D);
+            }
+        });
+
+        AFRAME.registerComponent('auto-height', {
+            init: function () {
+                var rig = this.el;
+                this.el.sceneEl.addEventListener('enter-vr', function () {
+                    rig.setAttribute('position', '0 0 0');
+                });
+                this.el.sceneEl.addEventListener('exit-vr', function () {
+                    rig.setAttribute('position', '0 1.6 0');
+                });
+            }
+        });
+
+        function iniciarTransicion(nombreEscena, direccionDeseada) {
+            hideCard2D();
+            var datos = escenas[nombreEscena];
+            if (!datos) return;
+
+            var contenedorFlechas = document.querySelector('#flechas-container');
+            var cieloFondo        = document.querySelector('#cielo-fondo');
+            var fondoOscuro       = document.querySelector('#hotspot-darkbg');
+            var canvas            = document.querySelector('a-scene canvas');
+            var overlay           = document.getElementById('transition-overlay');
+
+            // Limpiar overlays 2D
+            var fl2dOverlay = document.getElementById('flechas-2d-overlay');
+            if (fl2dOverlay) { fl2dOverlay.innerHTML = ''; _flechas2D = []; }
+            var hs2dOverlay = document.getElementById('hotspots-2d-overlay');
+            if (hs2dOverlay) { hs2dOverlay.innerHTML = ''; _hotspots2D = []; }
+
+            // Ocultar UI
+            contenedorFlechas.setAttribute('visible', 'false');
+            if (fondoOscuro) fondoOscuro.setAttribute('visible', 'false');
+            document.querySelectorAll('.grupo-hotspots').forEach(function(grupo) {
+                grupo.setAttribute('visible', 'false');
+                grupo.querySelectorAll('.panel-activo').forEach(function(p) {
+                    p.setAttribute('visible', 'false'); p.classList.remove('panel-activo');
+                });
+                grupo.querySelectorAll('.icono-hotspot').forEach(function(i) { i.classList.remove('clickable'); });
+            });
+
+            // Congelar pantalla: capturar frame actual y mostrarlo oscurecido
+            var freeze = document.getElementById('freeze-overlay');
+            if (canvas) {
+                try {
+                    var snap = canvas.toDataURL('image/jpeg', 0.92);
+                    freeze.style.backgroundImage = 'url(' + snap + ')';
+                    freeze.style.transition = 'none';
+                    freeze.style.opacity    = '0';
+                    freeze.style.display    = 'block';
+                    freeze.getBoundingClientRect();
+                    freeze.style.transition = 'opacity 180ms ease-in';
+                    freeze.style.opacity    = '1';
+                } catch(e) { freeze.style.display = 'none'; }
+            }
+            if (overlay) overlay.classList.add('activo');
+
+            var _revealed = false;
+            function revelarEscena() {
+                if (_revealed) return;
+                _revealed = true;
+                cieloFondo.removeEventListener('materialtextureloaded', revelarEscena);
+                if (overlay) overlay.classList.remove('activo');
+                freeze.style.transition = 'opacity 450ms ease-out';
+                freeze.style.opacity    = '0';
+                setTimeout(function() { freeze.style.display = 'none'; freeze.style.backgroundImage = ''; }, 450);
+                contenedorFlechas.setAttribute('visible', 'true');
+                try { generarHotspots2D(nombreEscena); } catch(e) {}
+                actualizarActivoSidenav(nombreEscena);
+                precargarAdyacentes(nombreEscena);
+            }
+
+            // Cargar nueva escena mientras la pantalla está congelada
+            cieloFondo.addEventListener('materialtextureloaded', revelarEscena);
+            cieloFondo.setAttribute('src', datos.imagen);
+            cieloFondo.setAttribute('rotation', datos.rotacionSky || '0 -90 0');
+            generarFlechas(datos.flechas);
+
+            // Fallback: máximo 1.5s, revela igual
+            setTimeout(revelarEscena, 1500);
+        }
+
+
+        var _flechas2D = [];
+        var _flechas2DLoopRunning = false;
+
+        function _flechas2DLoop() {
+            var scene = document.querySelector('a-scene');
+            var camera = scene && scene.camera;
+            if (camera) {
+                var W = window.innerWidth, H = window.innerHeight;
+                var v = new THREE.Vector3();
+                _flechas2D.forEach(function(s) {
+                    v.copy(s.pos3D).project(camera);
+                    if (v.z > 1) {
+                        s.el.style.visibility = 'hidden';
+                    } else {
+                        s.el.style.visibility = 'visible';
+                        s.el.style.left = ((v.x + 1) / 2 * W) + 'px';
+                        s.el.style.top  = ((-v.y + 1) / 2 * H) + 'px';
+                    }
+                });
+            }
+            requestAnimationFrame(_flechas2DLoop);
+        }
+
+        function generarFlechas(listaFlechas) {
+            var overlay = document.getElementById('flechas-2d-overlay');
+            overlay.innerHTML = '';
+            _flechas2D = [];
+
+            listaFlechas.forEach(function(flecha) {
+                var pos = flecha.position.trim().split(/\s+/);
+                var pos3D = new THREE.Vector3(parseFloat(pos[0]), parseFloat(pos[1]), parseFloat(pos[2]));
+
+                var nombreLugar = (flecha.label || nombresDestinos[flecha.target] || flecha.target).replace(/\n/g, ' ');
+
+                // Rotacion segun imgSrc (0=arriba, 90=derecha, 180=abajo, -90=izquierda)
+                var rot = 0;
+                if (flecha.imgSrc === '#img-flecha-derecha')   rot = 90;
+                else if (flecha.imgSrc === '#img-flecha-abajo') rot = 180;
+                else if (flecha.imgSrc === '#img-flecha-izquierda') rot = -90;
+
+                // Flecha apuntando ARRIBA (rot=0), borde negro degradé
+                var svgFlecha = '<svg width="48" height="37" viewBox="0 0 56 44" fill="none" style="transform:rotate(' + rot + 'deg)">' +
+                    '<path d="M5 40 L28 6 L51 40" stroke="#FFFFFF" stroke-width="11" stroke-linecap="butt" stroke-linejoin="miter"/>' +
+                    '</svg>';
+
+                var div = document.createElement('div');
+                div.className = 'flecha-2d';
+                div.innerHTML = svgFlecha + '<div class="flecha-label">' + nombreLugar + '</div>';
+
+                (function(target, mirar) {
+                    div.addEventListener('click', function() {
+                        if (!_isDragging) iniciarTransicion(target, mirar);
+                    });
+                    div.addEventListener('mouseenter', function() {
+                        var dest = escenas[target];
+                        if (dest && dest.imagen && !dest.imagen.startsWith('#') && !_preCache[dest.imagen]) {
+                            _preCache[dest.imagen] = true;
+                            var img = new Image(); img.src = dest.imagen;
+                        }
+                    });
+                })(flecha.target, flecha.mirarAlLlegar);
+
+                overlay.appendChild(div);
+                _flechas2D.push({ el: div, pos3D: pos3D });
+            });
+
+            if (!_flechas2DLoopRunning) {
+                _flechas2DLoopRunning = true;
+                _flechas2DLoop();
+            }
+        }
+
+        function construirMenu3D() {
+            var menu = document.querySelector('#menu-3d');
+            var keys = Object.keys(nombresDestinos);
+
+            var panelFondo = document.createElement('a-entity');
+            panelFondo.setAttribute('geometry', 'primitive: rounded-rect; width: 4.0; height: 3.6; radius: 0.15');
+            panelFondo.setAttribute('material', 'color: #000000; opacity: 0.72');
+            panelFondo.setAttribute('position', '0 0.10 -0.05');
+            menu.appendChild(panelFondo);
+
+            var titulo = document.createElement('a-text');
+            titulo.setAttribute('value', 'MAPA VIRTUAL ESAN');
+            titulo.setAttribute('align', 'center');
+            titulo.setAttribute('color', '#FFFFFF');
+            titulo.setAttribute('font', 'exo2semibold');
+            titulo.setAttribute('position', '0 1.55 0');
+            titulo.setAttribute('width', '4.5');
+            menu.appendChild(titulo);
+
+            let cols = 5;
+            let startX = -1.60; let startY = 1.1; let gapX = 0.80; let gapY = 0.40;
+
+            keys.forEach((key, index) => {
+                let col = index % cols; let row = Math.floor(index / cols);
+                let posX = startX + (col * gapX); let posY = startY - (row * gapY);
+
+                var btn = document.createElement('a-entity');
+                btn.setAttribute('geometry', 'primitive: rounded-rect; width: 0.72; height: 0.3; radius: 0.06');
+                btn.setAttribute('material', 'color: #E3173E; opacity: 0.95');
+                btn.setAttribute('position', `${posX} ${posY} 0`);
+                btn.setAttribute('class', 'menu-btn'); btn.setAttribute('data-target', key);
+                btn.setAttribute('menu-interactivo', '');
+
+                var txt = document.createElement('a-text');
+                txt.setAttribute('value', nombresDestinos[key]);
+                txt.setAttribute('align', 'center'); txt.setAttribute('color', '#FFFFFF');
+                txt.setAttribute('font', 'exo2semibold');
+                txt.setAttribute('width', '0.70'); txt.setAttribute('wrap-count', '12');
+                txt.setAttribute('position', '0 0 0.02');
+                btn.appendChild(txt);
+                menu.appendChild(btn);
+            });
+
+            var btnEnlace = document.createElement('a-entity');
+            btnEnlace.setAttribute('geometry', 'primitive: rounded-rect; width: 2.6; height: 0.32; radius: 0.07');
+            btnEnlace.setAttribute('material', 'color: #FFFFFF; opacity: 0.95');
+            btnEnlace.setAttribute('position', '0 -1.25 0'); btnEnlace.setAttribute('class', 'menu-btn');
+
+            var btnFill = document.createElement('a-entity');
+            btnFill.setAttribute('geometry', 'primitive: rounded-rect; width: 2.50; height: 0.22; radius: 0.06');
+            btnFill.setAttribute('material', 'color: #222222; opacity: 0.95');
+            btnFill.setAttribute('position', '0 0 0.002');
+            btnEnlace.appendChild(btnFill);
+
+            var txtEnlace = document.createElement('a-text');
+            txtEnlace.setAttribute('value', 'Ver trayectoria historica');
+            txtEnlace.setAttribute('align', 'center'); txtEnlace.setAttribute('color', '#FFFFFF');
+            txtEnlace.setAttribute('font', 'exo2semibold');
+            txtEnlace.setAttribute('width', '2.5'); txtEnlace.setAttribute('wrap-count', '35');
+            txtEnlace.setAttribute('position', '0 0 0.005');
+            btnEnlace.appendChild(txtEnlace);
+
+            btnEnlace.addEventListener('click', function () { window.location.href = 'https://esanlabs.github.io/Doble-videos-Esan/'; });
+
+            btnEnlace.addEventListener('mouseenter', function () {
+                btnFill.setAttribute('material', 'color: #E3173E; opacity: 0.95');
+                btnEnlace.setAttribute('scale', '1.05 1.05 1.05');
+            });
+
+            btnEnlace.addEventListener('mouseleave', function () {
+                btnFill.setAttribute('material', 'color: #222222; opacity: 0.95');
+                btnEnlace.setAttribute('scale', '1 1 1');
+            });
+
+            menu.appendChild(btnEnlace);
+        }
+
+        var _menuBuilt = false;
+        function toggleMenu3D() {
+            if (!_menuBuilt) {
+                construirMenu3D();
+                _menuBuilt = true;
+            }
+            var menu = document.querySelector('#menu-3d');
+            var cam = document.querySelector('#camara-principal');
+            var btn2D = document.getElementById('btn-menu-2d');
+            var isVisible = menu.getAttribute('visible');
+
+            if (!isVisible) {
+                var cam3D = cam.getObject3D('camera');
+                if (cam3D) {
+                    var posCamara = new THREE.Vector3();
+                    cam3D.getWorldPosition(posCamara);
+                    var vectorDireccion = new THREE.Vector3();
+                    cam3D.getWorldDirection(vectorDireccion);
+                    vectorDireccion.multiplyScalar(4.5);
+                    var nuevaPosicion = posCamara.clone().add(vectorDireccion);
+                    menu.setAttribute('position', nuevaPosicion);
+                    menu.setAttribute('billboard', '');
+                }
+                menu.setAttribute('visible', 'true');
+                if (btn2D) btn2D.innerText = 'Cerrar Menu de Navegacion';
+                var botonesMenu = menu.querySelectorAll('.menu-btn');
+                botonesMenu.forEach(b => b.classList.add('clickable'));
+            } else {
+                menu.setAttribute('visible', 'false');
+                if (btn2D) btn2D.innerText = 'Abrir Menu de Navegacion';
+                var botonesMenu = menu.querySelectorAll('.menu-btn');
+                botonesMenu.forEach(b => b.classList.remove('clickable'));
+            }
+        }
+
+        window.onload = function () {
+            var datos = escenas['entrada'];
+            var cieloFondo = document.querySelector('#cielo-fondo');
+
+            function revelarInicio() {
+                ocultarLoader();
+                precargarTodo('entrada');
+                try { generarHotspots2D('entrada'); } catch(e) {}
+            }
+
+            cieloFondo.setAttribute('src', datos.imagen);
+            cieloFondo.setAttribute('rotation', datos.rotacionSky || '0 -90 0');
+            generarFlechas(datos.flechas);
+
+            cieloFondo.addEventListener('materialtextureloaded', function onFirstTexture() {
+                cieloFondo.removeEventListener('materialtextureloaded', onFirstTexture);
+                revelarInicio();
+                setTimeout(aplicarMarcosPaneles, 200);
+            });
+
+            setTimeout(function () {
+                revelarInicio();
+                setTimeout(aplicarMarcosPaneles, 200);
+            }, 1500);
+
+            document.getElementById('btn-menu-2d').addEventListener('click', showMenu2D);
+            document.getElementById('ic-close-btn').addEventListener('click', hideCard2D);
+            document.getElementById('card-backdrop').addEventListener('click', hideCard2D);
+            document.getElementById('sidenav-toggle').addEventListener('click', function() { toggleSidenav(); });
+            buildSidenav();
+            actualizarActivoSidenav('entrada');
+            if (window.innerWidth < 640) toggleSidenav(true);
+
+            var darkbg = document.querySelector('#hotspot-darkbg');
+            if (darkbg) {
+                darkbg.addEventListener('click', function () {
+                    var panelActivo = document.querySelector('.panel-activo');
+                    if (panelActivo) {
+                        panelActivo.setAttribute('visible', 'false');
+                        panelActivo.classList.remove('panel-activo');
+                    }
+                    darkbg.setAttribute('visible', 'false');
+                    var flechas = document.querySelector('#flechas-container');
+                    if (flechas) flechas.setAttribute('visible', 'true');
+                });
+            }
+
+            var btnCapturar = document.getElementById('btn-capturar');
+            if (btnCapturar) btnCapturar.addEventListener('click', function () {
+                var cam = document.querySelector('#camara-principal').getObject3D('camera');
+                if (!cam) return;
+
+                var vectorDireccion = new THREE.Vector3();
+                cam.getWorldDirection(vectorDireccion);
+
+                var distancia = 12;
+
+                var posX = (vectorDireccion.x * distancia).toFixed(2);
+                var posY = (vectorDireccion.y * distancia).toFixed(2);
+                var posZ = (vectorDireccion.z * distancia).toFixed(2);
+
+                var anguloRad = Math.atan2(vectorDireccion.x, vectorDireccion.z);
+                var rotY = Math.round(anguloRad * (180 / Math.PI));
+
+                var codigoGenerado = `{ target: 'DESTINO', position: '${posX} ${posY} ${posZ}', rotation: '0 ${rotY} 0' },`;
+
+                navigator.clipboard.writeText(codigoGenerado).then(function () {
+                    alert("¡Cartel capturado en tu portapapeles!\n\n" + codigoGenerado + "\n\nPegalo en tu código.");
+                }).catch(function () {
+                    prompt("Copia este código:", codigoGenerado);
+                });
+                console.log("%c NUEVA COORDENADA CAPTURADA", "color: #E3173E; font-size: 16px; font-weight: bold;");
+                console.log(codigoGenerado);
+            });
+        };
+
+        var _marcosAplicados = false;
+        function aplicarMarcosPaneles() {
+            return; 
+        }
+
+        var _loaderOculto = false;
+        function ocultarLoader() {
+            if (_loaderOculto) return;
+            _loaderOculto = true;
+            var loader = document.getElementById('pantalla-carga');
+            if (loader) {
+                loader.classList.add('oculto');
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                    window.dispatchEvent(new Event('resize'));
+                }, 1000);
+            }
+        }
+
+        const _preCache = {};
+        function precargarAdyacentes(nombreEscena) {
+            var datos = escenas[nombreEscena];
+            if (!datos || !datos.flechas) return;
+            datos.flechas.forEach(function (flecha) {
+                var destino = escenas[flecha.target];
+                if (!destino) return;
+                var src = destino.imagen;
+                if (!src || src.startsWith('#') || _preCache[src]) return;
+                _preCache[src] = true;
+                var img = new Image();
+                img.src = src;
+            });
+        }
+
+        function precargarTodo(escenaActual) {
+            // Adyacentes primero (prioridad alta), luego el resto con pequeño delay
+            precargarAdyacentes(escenaActual);
+            var cola = [];
+            Object.keys(escenas).forEach(function(nombre) {
+                var src = escenas[nombre].imagen;
+                if (!src || src.startsWith('#') || _preCache[src]) return;
+                cola.push(src);
+            });
+            var i = 0;
+            function siguiente() {
+                if (i >= cola.length) return;
+                var src = cola[i++];
+                if (_preCache[src]) { siguiente(); return; }
+                _preCache[src] = true;
+                var img = new Image();
+                img.onload = img.onerror = function() { setTimeout(siguiente, 100); };
+                img.src = src;
+            }
+            setTimeout(siguiente, 2000); // empieza 2s después de cargar la primera escena
+        }
+
+        /* ── 2D CARD ─────────────────────────────────────────── */
+        window.panelData = {};
+
+        function showCard2D(panelId) {
+            var id = panelId.replace(/^#/, '');
+            var data = window.panelData[id];
+            if (!data) return;
+
+            var imgEl    = document.getElementById('ic-img');
+            var titleEl  = document.getElementById('ic-title');
+            var descEl   = document.getElementById('ic-desc');
+            var tagEl    = document.getElementById('ic-scene-tag');
+            var card     = document.getElementById('info-card-2d');
+            var backdrop = document.getElementById('card-backdrop');
+
+            titleEl.textContent = data.titulo;
+            descEl.textContent  = data.desc;
+            tagEl.textContent   = (nombresDestinos[data.sceneName] || data.sceneName || 'ESAN')
+                                    .replace(/\n/g, ' ').toUpperCase();
+
+            if (data.imagen) {
+                imgEl.src = data.imagen;
+                imgEl.style.display = 'block';
+            } else {
+                imgEl.style.display = 'none';
+            }
+
+            card.classList.add('visible');
+            backdrop.classList.add('visible');
+        }
+
+        function hideCard2D() {
+            document.getElementById('info-card-2d').classList.remove('visible');
+            document.getElementById('card-backdrop').classList.remove('visible');
+        }
+
+        /* ── 2D HOTSPOTS ──────────────────────────────────────── */
+        var _hotspots2D = [];
+        var _hotspots2DLoopRunning = false;
+
+        function _hotspots2DLoop() {
+            var scene = document.querySelector('a-scene');
+            var camera = scene && scene.camera;
+            if (camera) {
+                var W = window.innerWidth, H = window.innerHeight;
+                var v = new THREE.Vector3();
+                _hotspots2D.forEach(function(s) {
+                    v.copy(s.pos3D).project(camera);
+                    if (v.z > 1) {
+                        s.el.style.visibility = 'hidden';
+                    } else {
+                        s.el.style.visibility = 'visible';
+                        s.el.style.left = ((v.x + 1) / 2 * W) + 'px';
+                        s.el.style.top  = ((-v.y + 1) / 2 * H) + 'px';
+                    }
+                });
+            }
+            requestAnimationFrame(_hotspots2DLoop);
+        }
+
+        function generarHotspots2D(sceneName) {
+            var overlay = document.getElementById('hotspots-2d-overlay');
+            overlay.innerHTML = '';
+            _hotspots2D = [];
+
+            var grupo = document.getElementById('hotspots-' + sceneName);
+            if (!grupo) return;
+
+            grupo.querySelectorAll('.icono-hotspot').forEach(function(icono) {
+                var posAttr = icono.getAttribute('position');
+                if (!posAttr) return;
+
+                var pos3D;
+                if (typeof posAttr === 'string') {
+                    var p = posAttr.trim().split(/\s+/);
+                    pos3D = new THREE.Vector3(parseFloat(p[0]), parseFloat(p[1]), parseFloat(p[2]));
+                } else {
+                    pos3D = new THREE.Vector3(posAttr.x || 0, posAttr.y || 0, posAttr.z || 0);
+                }
+
+                var hotsData = icono.getAttribute('hotspot-info');
+                var targetId = '';
+                if (typeof hotsData === 'string') {
+                    var m = hotsData.match(/target:\s*([^;]+)/);
+                    if (m) targetId = m[1].trim();
+                } else if (hotsData && hotsData.target) {
+                    targetId = hotsData.target;
+                }
+
+                var div = document.createElement('div');
+                div.className = 'hotspot-2d';
+                div.innerHTML = '<svg width="36" height="36" viewBox="0 0 44 44"><circle cx="22" cy="22" r="21" fill="#FF0000"/><text x="22" y="29" text-anchor="middle" fill="white" font-size="22" font-weight="bold" font-family="Arial">i</text></svg>';
+
+                if (targetId) {
+                    (function(tid) {
+                        div.addEventListener('click', function() { showCard2D(tid); });
+                    })(targetId);
+                }
+
+                overlay.appendChild(div);
+                _hotspots2D.push({ el: div, pos3D: pos3D });
+            });
+
+            if (!_hotspots2DLoopRunning) {
+                _hotspots2DLoopRunning = true;
+                _hotspots2DLoop();
+            }
+        }
+
+        /* ── SIDE NAV ─────────────────────────────────────────── */
+        var _escenaActual = 'entrada';
+        var _sidenavBuilt = false;
+
+        var _categoriasNav = [
+            { nombre: 'Exteriores',       escenas: ['fuera','entrada','jardin','fuente','capilla','voley','basquet','explanada','ecoesan'] },
+            { nombre: 'Eventos y Cultura', escenas: ['eventos','butacas','danza','fablab','fablab2'] },
+            { nombre: 'Académico',         escenas: ['aula','biblioteca','edificioA','edificioD'] },
+            { nombre: 'Laboratorios',      escenas: ['fisica','quimica','conducta','laboratorio','datalab','robotica'] },
+            { nombre: 'Sala de Estudios',  escenas: ['estudio_pregrado','estudio_mba','estudio_magister','descanso_magister'] },
+            { nombre: 'Servicios',         escenas: ['cafeteria','cafeteria_interior'] }
+        ];
+
+        function buildSidenav() {
+            if (_sidenavBuilt) return;
+            _sidenavBuilt = true;
+            var body = document.getElementById('sidenav-body');
+            _categoriasNav.forEach(function(cat) {
+                var validos = cat.escenas.filter(function(k) { return escenas[k]; });
+                if (!validos.length) return;
+                var catEl = document.createElement('div');
+                catEl.className = 'sidenav-cat';
+                var hdr = document.createElement('div');
+                hdr.className = 'sidenav-cat-header';
+                hdr.innerHTML = cat.nombre + ' <span class="sidenav-cat-arrow">▼</span>';
+                hdr.addEventListener('click', function() { catEl.classList.toggle('cerrada'); });
+                catEl.appendChild(hdr);
+                var items = document.createElement('div');
+                items.className = 'sidenav-items';
+                validos.forEach(function(key) {
+                    var btn = document.createElement('button');
+                    btn.className = 'sidenav-item';
+                    btn.id = 'snav-' + key;
+                    btn.textContent = nombresDestinos[key] || key;
+                    btn.addEventListener('click', function() {
+                        iniciarTransicion(key, '0 0 0');
+                        if (window.innerWidth < 640) toggleSidenav(true);
+                    });
+                    items.appendChild(btn);
+                });
+                catEl.appendChild(items);
+                body.appendChild(catEl);
+            });
+        }
+
+        function actualizarActivoSidenav(nombreEscena) {
+            _escenaActual = nombreEscena;
+            document.querySelectorAll('.sidenav-item').forEach(function(el) { el.classList.remove('activo'); });
+            var activo = document.getElementById('snav-' + nombreEscena);
+            if (activo) {
+                activo.classList.add('activo');
+                var cat = activo.closest('.sidenav-cat');
+                if (cat) cat.classList.remove('cerrada');
+                activo.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            }
+        }
+
+        function toggleSidenav(forzarCerrar) {
+            var nav = document.getElementById('sidenav');
+            var toggle = document.getElementById('sidenav-toggle');
+            var cerrado = forzarCerrar !== undefined ? forzarCerrar : !nav.classList.contains('cerrado');
+            nav.classList.toggle('cerrado', cerrado);
+            toggle.textContent = cerrado ? '❯' : '❮';
+        }
+
+        function showMenu2D() { toggleSidenav(false); }
+        function hideMenu2D() { toggleSidenav(true); }
+    </script>
+</head>
+
+<body>
+    <div id="pantalla-carga">
+        <h1 style="font-size: 3em; margin-bottom: 10px;">Tour ESAN 360</h1>
+        <p style="font-size: 1.2em; letter-spacing: 2px;">INICIANDO REALIDAD VIRTUAL...</p>
+    </div>
+
+    <button id="btn-menu-2d">Abrir Menu de Navegacion</button>
+
+    <a-scene renderer="antialias: true; colorManagement: true; sortObjects: true; preserveDrawingBuffer: true;" cursor="rayOrigin: mouse"
+        raycaster="objects: .clickable">
+
+        <a-assets timeout="10000">
+            <img id="img-entrada" src="imagenes/entrada esan.jpg">
+            <canvas id="img-logo" width="512" height="512"></canvas>
+            <!-- img original: imagenes/logoPiso.webp -->
+            <canvas id="img-flecha-plana" width="128" height="128"></canvas>
+            <canvas id="img-info-icon" width="128" height="128"></canvas>
+            <canvas id="img-flecha-derecha" width="128" height="128"></canvas>
+            <canvas id="img-flecha-abajo" width="128" height="128"></canvas>
+            <canvas id="img-flecha-izquierda" width="128" height="128"></canvas>
+        </a-assets>
+
+        <script>
+        (function () {
+            var S = 128;
+
+            function dibujarInfo(ctx) {
+                ctx.fillStyle = '#FF0000';
+                ctx.beginPath(); ctx.arc(64, 64, 58, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#FFFFFF';
+                ctx.font = 'bold 72px Arial';
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText('i', 64, 68);
+            }
+
+            function dibujarLogo(ctx) {
+                var cx = 256;
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(0, 0, 512, 512);
+                ctx.fillStyle = '#888888';
+                ctx.font = 'bold 38px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('UN', cx, 168);
+                ctx.fillStyle = '#E3173E';
+                ctx.font = 'bold 200px Arial';
+                ctx.fillText('e', cx, 310);
+            }
+
+            function dibujarFlecha(ctx, rot) {
+                ctx.save();
+                ctx.translate(S / 2, S / 2);
+                ctx.rotate(rot * Math.PI / 180);
+                ctx.translate(-S / 2, -S / 2);
+                ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+                ctx.strokeStyle = 'rgba(0,0,0,0.45)'; ctx.lineWidth = 34;
+                ctx.beginPath(); ctx.moveTo(19, 76); ctx.lineTo(50, 28); ctx.lineTo(81, 76); ctx.stroke();
+                ctx.strokeStyle = '#E3173E'; ctx.lineWidth = 26;
+                ctx.beginPath(); ctx.moveTo(17, 74); ctx.lineTo(50, 28); ctx.lineTo(83, 74); ctx.stroke();
+                ctx.strokeStyle = '#FFFFFF'; ctx.lineWidth = 14;
+                ctx.beginPath(); ctx.moveTo(17, 74); ctx.lineTo(50, 28); ctx.lineTo(83, 74); ctx.stroke();
+                ctx.restore();
+            }
+
+            [
+                ['img-logo', function (c) {
+                    var img = new Image();
+                    img.onload = function() {
+                        c.clearRect(0, 0, 512, 512);
+                        // Ampliar 22% para recortar el borde negro del logo
+                        var zoom = 1.38;
+                        var offset = (512 - 512 * zoom) / 2;
+                        c.drawImage(img, offset, offset, 512 * zoom, 512 * zoom);
+                    };
+                    img.src = 'imagenes/pisoLogo.webp';
+                }],
+                ['img-info-icon',      function (c) { dibujarInfo(c); }],
+                ['img-flecha-plana',   function (c) { dibujarFlecha(c, 0); }],
+                ['img-flecha-derecha', function (c) { dibujarFlecha(c, 90); }],
+                ['img-flecha-abajo',   function (c) { dibujarFlecha(c, 180); }],
+                ['img-flecha-izquierda', function (c) { dibujarFlecha(c, -90); }]
+            ].forEach(function (d) {
+                var el = document.getElementById(d[0]);
+                if (!el) return;
+                var ctx = el.getContext('2d');
+                ctx.clearRect(0, 0, S, S);
+                d[1](ctx);
+            });
+        })();
+        </script>
+
+        <a-sky id="cielo-fondo" radius="500" rotation="0 -90 0"></a-sky>
+        
+        <a-light type="ambient" color="#FFF" intensity="1.5"></a-light>
+
+        <a-entity id="hotspot-darkbg" geometry="primitive: sphere; radius: 100"
+            material="color: #000000; transparent: true; opacity: 0.6; side: back" visible="false"
+            class="clickable"></a-entity>
+
+        <a-entity id="flechas-container"></a-entity>
+        <a-entity id="menu-3d" visible="false" scale="0.85 0.85 0.85"></a-entity>
+
+        <a-entity id="hotspots-entrada" class="grupo-hotspots" visible="false">
+            <a-circle src="#img-logo" radius="3.2" position="0 0.05 0" rotation="-90 0 0"
+                material="shader: flat"></a-circle>
+
+            <a-image src="#img-info-icon" position="0.17 2 12.00" scale="0.8 0.8 0.8" billboard
+                class="icono-hotspot" hotspot-info="target: #panel-info-entrada; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-entrada" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="ENTRADA PRINCIPAL ESAN" color="#FFFFFF" align="center" width="7"
+                    position="0 1.15 0.01"></a-text>
+
+                <a-text
+                    value="Bienvenidos a una de las instituciones de educación superior en negocios más prestigiosas de América Latina."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.2 0.02"
+                    hotspot-info="target: #panel-info-entrada; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+
+            <!-- <a-image src="#img-info-icon" position="-10.24 4.32 -4.53" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-RECEPCION-entrada; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-RECEPCION-entrada" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="RECEPCIÓN" color="#E3173E" align="center" width="7" position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Tu punto central de orientación, atención inicial y bienvenida al campus universitario."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-RECEPCION-entrada; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity> -->
+
+            <a-image src="#img-info-icon" position="-11.97 2 0.78" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-fuente-esan; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-fuente-esan" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="FUENTE ESAN" color="#E3173E" align="center" width="7" position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Elemento emblemático y moderno que aporta identidad institucional en el ingreso principal."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-fuente-esan; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+
+            <a-image src="#img-info-icon" position="-6.53 2 10.07" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot"
+                hotspot-info="target: #panel-info-espera-transporte-entrada; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-espera-transporte-entrada" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="ZONA DE ESPERA" color="#E3173E" align="center" width="7" position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Espacio práctico, ordenado y seguro para coordinar tu transporte al entrar o salir."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-espera-transporte-entrada; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+        </a-entity>
+
+        <a-entity id="hotspots-jardin" class="grupo-hotspots" visible="false">
+            <a-image src="#img-info-icon" position="11.99 3 -0.20" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-jardin; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-jardin" data-imagen="imagenes/imgParaCards/arbolF.jpg" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="PINO ESAN" color="#E3173E" align="center" width="7" position="0 1.05 0.01"></a-text>
+
+                <a-text value="Nuestro gran emblema histórico que representa los 60 años de evolución del campus."
+                    color="#333333" align="center" width="3.5" position="0 -0.1 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.7 1.1 0.02"
+                    hotspot-info="target: #panel-info-jardin; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+
+            <a-image src="#img-info-icon" position="6.09 5.00 9.99" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-jardin2; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-jardin2" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="CAJA Y PAGOS ESAN" color="#E3173E" align="center" width="7"
+                    position="0 1.15 0.01"></a-text>
+
+                <a-text
+                    value="Área presencial para trámites administrativos, pago de pensiones y matrículas con atención rápida."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.2 0.02"
+                    hotspot-info="target: #panel-info-jardin2; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+
+            <a-image src="#img-info-icon" position="10.93 2 -4.96" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-decanato-jardin; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-decanato-jardin" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="DIRECCIÓN ACADÉMICA" color="#E3173E" align="center" width="7"
+                    position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Oficinas directivas donde se coordinan los procesos que fortalecen la excelencia esanista."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-decanato-jardin; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+
+            <a-image src="#img-info-icon" position="-2.90 2 11.64" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot"
+                hotspot-info="target: #panel-info-aulas-auditorio-jardin; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-aulas-auditorio-jardin" data-imagen="imagenes/imgParaCards/auditorioPostgradoF.webp" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="AULAS TIPO AUDITORIO" color="#E3173E" align="center" width="7"
+                    position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Diseñadas en formato anfiteatro para potenciar debates dinámicos y el aprendizaje colaborativo."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-aulas-auditorio-jardin; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+
+            <a-image src="#img-info-icon" position="2.77 4.11 -10.93" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot"
+                hotspot-info="target: #panel-info-aulas-ejecutivas-jardin; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-aulas-ejecutivas-jardin" data-imagen="imagenes/imgParaCards/aulasEjecutivasF.jpg" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="AULAS EJECUTIVAS" color="#E3173E" align="center" width="7"
+                    position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Infraestructura que optimiza la interacción entre docentes y alumnos para el análisis de casos."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-aulas-ejecutivas-jardin; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+
+            <a-image src="#img-info-icon" position="-7.66 3.41 -8.59" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-comedor-jardin; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-comedor-jardin" data-imagen="imagenes/imgParaCards/comedorCentralF.webp" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="COMEDOR CENTRAL" color="#E3173E" align="center" width="7"
+                    position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Punto de encuentro ideal para compartir, descansar y recargar energías entre clases."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-comedor-jardin; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+        </a-entity>
+
+
+        <a-entity id="hotspots-fuente" class="grupo-hotspots" visible="false">
+            <a-image src="#img-info-icon" position="11.28 -2.31 -3.38" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-fuente; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-fuente" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="FUENTE CENTRAL" color="#E3173E" align="center" width="7" position="0 1.15 0.01"></a-text>
+
+                <a-text
+                    value="Símbolo representativo en el corazón del campus que invita a la reflexión y al encuentro."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.2 0.02"
+                    hotspot-info="target: #panel-info-fuente; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+
+            <a-image src="#img-info-icon" position="7.51 3.20 -8.36" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-comedor-fuente; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-comedor-fuente" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="COMEDOR ESAN" color="#E3173E" align="center" width="7" position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Menús diarios balanceados y accesibles pensados para la convivencia y el descanso estudiantil."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-comedor-fuente; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+
+            <a-image src="#img-info-icon" position="0.81 4.18 11.22" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot"
+                hotspot-info="target: #panel-info-aulas-auditorio-fuente; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-aulas-auditorio-fuente" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="AULAS TIPO AUDITORIO" color="#E3173E" align="center" width="7"
+                    position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Espacios académicos diseñados para conectar la teoría, la práctica y la discusión interactiva."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-aulas-auditorio-fuente; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+
+            <a-image src="#img-info-icon" position="-8.95 4.85 -6.36" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-admin-fuente; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-admin-fuente" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="OFICINAS ADMINISTRATIVAS" color="#E3173E" align="center" width="7"
+                    position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Área clave encargada del soporte operativo y la gestión de procesos internos del campus."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-admin-fuente; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+
+
+            <a-image src="#img-info-icon" position="11.12 3.59 -2.71" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot"
+                hotspot-info="target: #panel-info-aulas-auditorio-fuente-2; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-aulas-auditorio-fuente-2" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="AULAS TIPO AUDITORIO" color="#E3173E" align="center" width="7"
+                    position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Espacios académicos diseñados para conectar la teoría, la práctica y la discusión interactiva."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-aulas-auditorio-fuente-2; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+
+            <a-image src="#img-info-icon" position="-8.44 0.34 8.52" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-descanso-fuente; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-descanso-fuente" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="ÁREA DE DESCANSO" color="#E3173E" align="center" width="7"
+                    position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Zona natural junto a la fuente, ideal para relajarse y disfrutar del ambiente esanista."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-descanso-fuente; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+        </a-entity>
+
+        <a-entity id="hotspots-capilla" class="grupo-hotspots" visible="false">
+            <a-image src="#img-info-icon" position="1.46 2.90 -11.55" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-capilla; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-capilla" data-imagen="imagenes/imgParaCards/capillaF.jpg" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="CAPILLA ESAN" color="#E3173E" align="center" width="7" position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Espacio sagrado de fe, oración y recogimiento consagrado a la memoria de nuestra comunidad."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-capilla; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+        </a-entity>
+
+        <a-entity id="hotspots-fablab" class="grupo-hotspots" visible="false">
+            <a-image src="#img-info-icon" position="-10.98 2.64 -4.04" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-fablab; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-fablab" data-imagen="imagenes/imgParaCards/fabLabF.webp" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="FABLAB ESAN" color="#E3173E" align="center" width="7" position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Laboratorio de fabricación digital para innovar, experimentar y convertir tus ideas en productos reales."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-fablab; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+
+            <a-image src="#img-info-icon" position="-0.91 5.31 -10.72" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-pizarra-fablab; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-pizarra-fablab" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="PIZARRA COLABORATIVA" color="#E3173E" align="center" width="7"
+                    position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Recurso clave para estructurar ideas, planificar proyectos y construir soluciones en equipo."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-pizarra-fablab; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+
+            <a-image src="#img-info-icon" position="-11.40 1.63 3.39" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-proyectos-fablab; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-proyectos-fablab" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="PROYECTOS FABLAB" color="#E3173E" align="center" width="7"
+                    position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Exhibición de prototipos reales nacidos del diseño, la experimentación y la fabricación digital."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-proyectos-fablab; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+
+            <a-image src="#img-info-icon" position="-6.78 3.68 9.19" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-casilleros-fablab; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-casilleros-fablab" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="CASILLEROS DE APOYO" color="#E3173E" align="center" width="7"
+                    position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Almacenamiento seguro y organizado para herramientas y proyectos estudiantiles en desarrollo."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-casilleros-fablab; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+
+            <a-image src="#img-info-icon" position="-11.78 -0.89 2.11" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-mesa-fablab; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-mesa-fablab" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="MESA DE TRABAJO" color="#E3173E" align="center" width="7"
+                    position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Espacio de co-working para el desarrollo de ideas, ensamblaje de prototipos y aprendizaje aplicado."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-mesa-fablab; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+
+            <a-image src="#img-info-icon" position="11.79 -1.03 2.00" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-mesa2-fablab; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-mesa2-fablab" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="MESA DE TRABAJO" color="#E3173E" align="center" width="7"
+                    position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Espacio de co-working para el desarrollo de ideas, ensamblaje de prototipos y aprendizaje aplicado."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-mesa2-fablab; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+
+            <a-image src="#img-info-icon" position="-6.36 0.89 -10.14" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-docente-fablab; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-docente-fablab" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="ESPACIO DEL DOCENTE" color="#E3173E" align="center" width="7"
+                    position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Zona de guía donde los facilitadores orientan actividades y supervisan el uso del laboratorio."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-docente-fablab; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+
+            <a-image src="#img-info-icon" position="-0.92 2.99 11.58" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-personal-fablab; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-personal-fablab" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="ESPACIO DEL PERSONAL" color="#E3173E" align="center" width="7"
+                    position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Área técnica encargada de la coordinación, soporte y gestión de recursos del laboratorio."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-personal-fablab; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+
+            <a-image src="#img-info-icon" position="5.84 2.78 10.10" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-personal2-fablab; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-personal2-fablab" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="ESPACIO DEL PERSONAL" color="#E3173E" align="center" width="7"
+                    position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Área técnica encargada de la coordinación, soporte y gestión de recursos del laboratorio."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-personal2-fablab; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+
+            <a-image src="#img-info-icon" position="-9.65 1.96 6.85" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-almacen-fablab; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-almacen-fablab" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="ALMACÉN DE MATERIALES" color="#E3173E" align="center" width="7"
+                    position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Zona de stock organizada para mantener accesibles los insumos de diseño y prototipado."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-almacen-fablab; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+        </a-entity>
+
+        <a-entity id="hotspots-fablab2" class="grupo-hotspots" visible="false">
+            <a-image src="#img-info-icon" position="-3.13 1.34 -11.51" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-fablab2; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-fablab2" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="IMPRESORAS 3D" color="#E3173E" align="center" width="7" position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Equipos FDM de alta precisión para materializar piezas y modelos funcionales capa por capa."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-fablab2; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+
+            <a-image src="#img-info-icon" position="11.57 1.27 2.92" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-laser-fablab2; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-laser-fablab2" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="CORTADORA LÁSER" color="#E3173E" align="center" width="7"
+                    position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Herramienta de alta precisión para transformar diseños digitales en piezas físicas reales."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-laser-fablab2; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+
+            <a-image src="#img-info-icon" position="11.78 1.03 -2.04" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-soldadura-fablab2; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-soldadura-fablab2" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="ESTACIÓN DE SOLDADURA" color="#E3173E" align="center" width="7"
+                    position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Espacio práctico de fabricación electrónica para ensamblar circuitos y prototipos tecnológicos."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-soldadura-fablab2; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+
+            <a-image src="#img-info-icon" position="10.62 0.65 5.56" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-control-fablab2; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-control-fablab2" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="ESTACIÓN DE CONTROL" color="#E3173E" align="center" width="7"
+                    position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Punto operativo desde donde se configuran y supervisan las máquinas de fabricación digital."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-control-fablab2; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+
+            <a-image src="#img-info-icon" position="11.77 -2.31 0.32" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-mesa-trabajo-fablab2; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-mesa-trabajo-fablab2" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="MESA DE TRABAJO" color="#E3173E" align="center" width="7"
+                    position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Entorno práctico diseñado para el ensamblaje de prototipos, pruebas y experimentación colaborativa."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-mesa-trabajo-fablab2; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+
+            <a-image src="#img-info-icon" position="-9.64 -2.71 -6.61" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot"
+                hotspot-info="target: #panel-info-mesa-trabajo2-fablab2; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-mesa-trabajo2-fablab2" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="MESA DE TRABAJO" color="#E3173E" align="center" width="7"
+                    position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Entorno práctico diseñado para el ensamblaje de prototipos, pruebas y experimentación colaborativa."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-mesa-trabajo2-fablab2; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+
+            <a-image src="#img-info-icon" position="-8.64 -1.75 8.14" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot"
+                hotspot-info="target: #panel-info-mesa-trabajo3-fablab2; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-mesa-trabajo3-fablab2" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="MESA DE TRABAJO" color="#E3173E" align="center" width="7"
+                    position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Entorno práctico diseñado para el ensamblaje de prototipos, pruebas y experimentación colaborativa."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-mesa-trabajo3-fablab2; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+        </a-entity>
+
+        <a-entity id="hotspots-voley" class="grupo-hotspots" visible="false">
+            <a-image src="#img-info-icon" position="1.74 -1.10 -11.82" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-voley; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-voley" data-imagen="imagenes/imgParaCards/canchaVoleyF.webp" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="CANCHA DEPORTIVA" color="#E3173E" align="center" width="7"
+                    position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Escenario multideportivo ideal para fomentar la disciplina, el trabajo en equipo y el liderazgo."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-voley; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+
+            <a-image src="#img-info-icon" position="-4.32 4.63 10.20" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-bancapractica-voley; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-bancapractica-voley" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="BANCA PRÁCTICA ESAN" color="#E3173E" align="center" width="7"
+                    position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Laboratorio vivencial que replica el entorno financiero real para simular créditos e inversiones."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-bancapractica-voley; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+
+            <a-image src="#img-info-icon" position="3.82 4.00 10.27" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-fablab-voley; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-fablab-voley" data-imagen="imagenes/imgParaCards/fabLabF.webp" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="FABLAB ESAN" color="#E3173E" align="center" width="7" position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Laboratorio de innovación y prototipado donde el diseño digital se vuelve tangible."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-fablab-voley; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+
+            <a-image src="#img-info-icon" position="9.60 7.20 0.12" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-convention-voley; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-convention-voley" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="CONVENTION & SPORT CENTER" color="#E3173E" align="center" width="7"
+                    position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Moderno recinto que une deporte, cultura y academia en los grandes eventos institucionales."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-convention-voley; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+
+            <a-image src="#img-info-icon" position="-9.60 3.96 -6.02" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-graderias-voley; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-graderias-voley" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="GRADERÍAS DEPORTIVAS" color="#E3173E" align="center" width="7"
+                    position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Espacio para alentar a los equipos, compartir y vivir el espíritu universitario."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-graderias-voley; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+        </a-entity>
+
+        <a-entity id="hotspots-basquet" class="grupo-hotspots" visible="false">
+            <a-image src="#img-info-icon" position="-8.99 0.53 -7.93" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-basquet; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-basquet" data-imagen="imagenes/imgParaCards/dentroConventionF.jpg" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="CANCHA DE BÁSQUET" color="#E3173E" align="center" width="7"
+                    position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Espacio multideportivo ideal para entrenamientos, recreación y dinámicas de integración."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-basquet; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+        </a-entity>
+
+        <a-entity id="hotspots-explanada" class="grupo-hotspots" visible="false">
+            <a-image src="#img-info-icon" position="11.75 2 2.43" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-explanada; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-explanada" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="AULAS POSTGRADO" color="#E3173E" align="center" width="7"
+                    position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Espacios de alto nivel diseñados para potenciar la excelencia académica en maestrías y MBA."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-explanada; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+
+            <a-image src="#img-info-icon" position="-11.61 2 -3.04" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-lab-fisica-quimica; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-lab-fisica-quimica" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="LABORATORIOS DE FÍSICA Y QUÍMICA" color="#E3173E" align="center" width="7"
+                    position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Infraestructura científica diseñada para validar la teoría mediante la experimentación práctica."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-lab-fisica-quimica; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+
+        </a-entity>
+
+        <a-entity id="hotspots-eventos" class="grupo-hotspots" visible="false">
+            <a-image src="#img-info-icon" position="-1.60 3.64 -11.32" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-eventos; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-eventos" data-imagen="imagenes/imgParaCards/eventosF.jpg" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="ÁREA DE EVENTOS" color="#E3173E" align="center" width="7"
+                    position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="El corazón de la vida universitaria fuera del aula: ferias, lanzamientos y celebraciones."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-eventos; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+
+            <a-image src="#img-info-icon" position="4.27 10.12 4.83" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot"
+                hotspot-info="target: #panel-info-convention-center-eventos; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-convention-center-eventos" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="CONVENTION CENTER" color="#E3173E" align="center" width="7"
+                    position="0 1.25 0.01"></a-text>
+
+                <a-text value="Espacio de gran convocatoria ideal para conferencias y el networking profesional." color="#333333" align="center" width="3.5"
+                    position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-convention-center-eventos; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+        </a-entity>
+
+        <a-entity id="hotspots-butacas" class="grupo-hotspots" visible="false">
+            <a-image src="#img-info-icon" position="8.35 1.10 -8.55" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-butacas; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-butacas" data-imagen="imagenes/imgParaCards/butasF.jpg" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="ZONA DE BUTACAS" color="#E3173E" align="center" width="7"
+                    position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="El lugar ideal para disfrutar en comunidad de transmisiones en vivo y eventos artísticos."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-butacas; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+        </a-entity>
+
+        <a-entity id="hotspots-biblioteca" class="grupo-hotspots" visible="false">
+            <a-image src="#img-info-icon" position="-8.69 4.11 7.19" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-biblioteca; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-biblioteca" data-imagen="imagenes/imgParaCards/bibliotecaF.webp" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="BIBLIOTECA ESAN" color="#E3173E" align="center" width="7"
+                    position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Un entorno de silencio y concentración con un amplio acervo físico y digital de primer nivel."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-biblioteca; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+        </a-entity>
+
+        <a-entity id="hotspots-danza" class="grupo-hotspots" visible="false">
+            <a-image src="#img-info-icon" position="8.62 4.83 -6.81" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-danza; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-danza" data-imagen="imagenes/imgParaCards/aulaDanzaF.webp" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="SALÓN DE DANZA" color="#E3173E" align="center" width="7" position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Espacio artístico donde los estudiantes ensayan, crean coreografías y expresan su creatividad."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-danza; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+
+            <a-image src="#img-info-icon" position="9.85 3.06 6.14" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-inpro-danza; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-inpro-danza" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="INPRO ESAN" color="#E3173E" align="center" width="7" position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Nuestro grupo de improvisación teatral ideal para potenciar la comunicación, confianza y liderazgo."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-inpro-danza; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+        </a-entity>
+
+        <a-entity id="hotspots-edificioA" class="grupo-hotspots" visible="false">
+            <a-image src="#img-info-icon" position="-10.39 2.73 -4.70" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-edificioA; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-edificioA" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="MÁQUINAS DE SNACKS" color="#E3173E" align="center" width="7"
+                    position="0 1.15 0.01"></a-text>
+
+                <a-text
+                    value="Dispensadores de bebidas y bocadillos ideales para reponer energías en tus pausas."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.2 0.02"
+                    hotspot-info="target: #panel-info-edificioA; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+        </a-entity>
+
+        <a-entity id="hotspots-edificioD" class="grupo-hotspots" visible="false">
+            <a-image src="#img-info-icon" position="3.41 3 11.50" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-edificioD; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-edificioD" data-imagen="imagenes/imgParaCards/edificioDF.webp" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="CAJERO BCP" color="#E3173E" align="center" width="7" position="0 1.15 0.01"></a-text>
+
+                <a-text
+                    value="Operaciones bancarias y retiros rápidos de forma segura sin salir del campus universitario."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.2 0.02"
+                    hotspot-info="target: #panel-info-edificioD; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+
+            <a-image src="#img-info-icon" position="8.30 4 8.67" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-libreria-edificioD; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-libreria-edificioD" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="LIBRERÍA ESAN" color="#E3173E" align="center" width="7" position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Textos especializados en negocios y artículos de escritorio para complementar tu formación."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-libreria-edificioD; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+
+            <a-image src="#img-info-icon" position="-11.89 5 -1.61" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-edificio-d-completo; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-edificio-d-completo" data-imagen="imagenes/imgParaCards/edificioDF.webp" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="EDIFICIO D" color="#E3173E" align="center" width="7" position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Entorno integral que reúne aulas tecnológicas, áreas docentes y convivencia estudiantil."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-edificio-d-completo; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+
+            <a-image src="#img-info-icon" position="-8.89 7 -8.06" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot"
+                hotspot-info="target: #panel-info-comedor-segundo-piso-edificio-d; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-comedor-segundo-piso-edificio-d" data-imagen="imagenes/imgParaCards/comedorEstudiantilF.webp" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="COMEDOR ESTUDIANTIL" color="#E3173E" align="center" width="7"
+                    position="0 7.25 0.01"></a-text>
+
+                <a-text value="Zona versátil para almorzar, descansar o reunirse a estudiar entre clases." color="#333333" align="center" width="3.5"
+                    position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-comedor-segundo-piso-edificio-d; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+
+            <a-image src="#img-info-icon" position="11.08 4 4.60" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-servicios-edificio-d; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-servicios-edificio-d" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="SERVICIOS HIGIÉNICOS" color="#E3173E" align="center" width="7"
+                    position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Infraestructura esencial que brinda comodidad y accesibilidad en el entorno académico."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-servicios-edificio-d; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+
+        </a-entity>
+
+        <a-entity id="hotspots-conducta" class="grupo-hotspots" visible="false">
+            <a-image src="#img-info-icon" position="-0.81 3.02 -11.59" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-conducta; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-conducta" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="LAB DE CONDUCTA" color="#E3173E" align="center" width="7"
+                    position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Espacio de apoyo especializado en asesoría conductual, gestión emocional y bienestar integral."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-conducta; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+        </a-entity>
+
+        <a-entity id="hotspots-ecoesan" class="grupo-hotspots" visible="false">
+            <a-image src="#img-info-icon" position="1.38 2.62 -11.63" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-ecoesan; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-ecoesan" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="ECO ESAN" color="#E3173E" align="center" width="7" position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Iniciativa ambiental que promueve el reciclaje y el cuidado del entorno con incentivos especiales."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-ecoesan; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+
+            <a-image src="#img-info-icon" position="-10.21 4.13 3.66" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-cafeteria-ecoesan; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-cafeteria-ecoesan" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="CAFETERÍA ESAN" color="#E3173E" align="center" width="7" position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Punto de encuentro perfecto para avanzar trabajos grupales o tomar un café."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-cafeteria-ecoesan; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+        </a-entity>
+
+        <a-entity id="hotspots-aula" class="grupo-hotspots" visible="false">
+            <a-image src="#img-info-icon" position="-3.47 3.59 -10.91" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-aula; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-aula" data-imagen="imagenes/imgParaCards/aulasF.webp" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="AULA DE CLASES" color="#E3173E" align="center" width="7" position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Espacios tecnológicos diseñados para el aprendizaje activo, debates y casos de negocio."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-aula; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+        </a-entity>
+
+
+        <a-entity id="hotspots-laboratorio" class="grupo-hotspots" visible="false">
+            <a-image src="#img-info-icon" position="-1.64 3.20 -11.45" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-laboratorio; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-laboratorio" data-imagen="imagenes/imgParaCards/labComputoF.webp" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="LAB DE CÓMPUTO" color="#E3173E" align="center" width="7" position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Equipado con PCs de alto rendimiento y software especializado en análisis de datos y simulación."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-laboratorio; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+
+        </a-entity>
+
+        <a-entity id="hotspots-datalab" class="grupo-hotspots" visible="false">
+            <a-image src="#img-info-icon" position="-11.66 2.78 -0.57" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-datalab; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-datalab" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="DATA LAB" color="#E3173E" align="center" width="7" position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Espacio dedicado al Big Data y la inteligencia artificial para la toma de decisiones empresariales."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-datalab; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+        </a-entity>
+
+        <a-entity id="hotspots-cafeteria" class="grupo-hotspots" visible="false">
+            <a-image src="#img-info-icon" position="-6.24 4.00 8.94" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-cafeteria; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-cafeteria" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="CAFETERÍA ESAN" color="#E3173E" align="center" width="7" position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="El lugar favorito para estudiar en grupo, relajarse y disfrutar de una variada oferta."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-cafeteria; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+        </a-entity>
+
+        <a-entity id="hotspots-fuera" class="grupo-hotspots" visible="false">
+            <a-image src="#img-info-icon" position="5 2.5 -8" scale="0.8 0.8 0.8" billboard
+                class="icono-hotspot" hotspot-info="target: #panel-info-fuera; action: toggle">
+            </a-image>
+            <a-entity id="panel-info-fuera" data-imagen="imagenes/imgParaCards/fuenteF.webp" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+                <a-text value="EXTERIOR ESAN" color="#E3173E" align="center" width="7" position="0 1.25 0.01"></a-text>
+                <a-text
+                    value="Amplias áreas verdes y zonas de tránsito que destacan nuestra moderna arquitectura."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-fuera; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+        </a-entity>
+
+        <a-entity id="hotspots-fisica" class="grupo-hotspots" visible="false">
+            <a-image src="#img-info-icon" position="5 2.5 -8" scale="0.8 0.8 0.8" billboard
+                class="icono-hotspot" hotspot-info="target: #panel-info-fisica; action: toggle">
+            </a-image>
+            <a-entity id="panel-info-fisica" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+                <a-text value="LABORATORIO DE FÍSICA" color="#E3173E" align="center" width="7"
+                    position="0 1.25 0.01"></a-text>
+                <a-text
+                    value="Equipamiento de última generación para el estudio experimental de fenómenos científicos."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-fisica; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+        </a-entity>
+
+        <a-entity id="hotspots-quimica" class="grupo-hotspots" visible="false">
+            <a-image src="#img-info-icon" position="5 2.5 -8" scale="0.8 0.8 0.8" billboard
+                class="icono-hotspot" hotspot-info="target: #panel-info-quimica; action: toggle">
+            </a-image>
+            <a-entity id="panel-info-quimica" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+                <a-text value="LABORATORIO DE QUÍMICA" color="#E3173E" align="center" width="7"
+                    position="0 1.25 0.01"></a-text>
+                <a-text
+                    value="Entorno seguro y equipado para la práctica científica aplicada a la innovación industrial."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-quimica; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+        </a-entity>
+
+        <a-entity id="hotspots-estudio_pregrado" class="grupo-hotspots" visible="false">
+            <a-image src="#img-info-icon" position="5 2.5 -8" scale="0.8 0.8 0.8" billboard
+                class="icono-hotspot" hotspot-info="target: #panel-info-estudio_pregrado; action: toggle">
+            </a-image>
+            <a-entity id="panel-info-estudio_pregrado" data-imagen="imagenes/imgParaCards/salaEstudioPregradoF.webp" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+                <a-text value="SALA DE ESTUDIO PREGRADO" color="#E3173E" align="center" width="7"
+                    position="0 1.25 0.01"></a-text>
+                <a-text
+                    value="Ambientes cómodos e iluminados ideales para preparar exámenes y proyectos en equipo."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-estudio_pregrado; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+        </a-entity>
+
+        <a-entity id="hotspots-estudio_mba" class="grupo-hotspots" visible="false">
+            <a-image src="#img-info-icon" position="5 2.5 -8" scale="0.8 0.8 0.8" billboard
+                class="icono-hotspot" hotspot-info="target: #panel-info-estudio_mba; action: toggle">
+            </a-image>
+            <a-entity id="panel-info-estudio_mba" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+                <a-text value="SALA DE ESTUDIO MBA" color="#E3173E" align="center" width="7"
+                    position="0 1.25 0.01"></a-text>
+                <a-text
+                    value="Espacios ejecutivos diseñados para el co-working y la discusión de casos de gestión."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-estudio_mba; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+        </a-entity>
+
+        <a-entity id="hotspots-estudio_magister" class="grupo-hotspots" visible="false">
+            <a-image src="#img-info-icon" position="5 2.5 -8" scale="0.8 0.8 0.8" billboard
+                class="icono-hotspot" hotspot-info="target: #panel-info-estudio_magister; action: toggle">
+            </a-image>
+            <a-entity id="panel-info-estudio_magister" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+                <a-text value="SALA DE ESTUDIO MAGÍSTER" color="#E3173E" align="center" width="7"
+                    position="0 1.25 0.01"></a-text>
+                <a-text
+                    value="Entorno de alto nivel académico para la investigación y el desarrollo de tesis."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-estudio_magister; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+        </a-entity>
+
+        <a-entity id="hotspots-descanso_magister" class="grupo-hotspots" visible="false">
+            <a-image src="#img-info-icon" position="6.71 2 9.95" scale="0.8 0.8 0.8" billboard
+                class="icono-hotspot" hotspot-info="target: #panel-info-descanso_magister; action: toggle">
+            </a-image>
+            <a-entity id="panel-info-descanso_magister" data-imagen="imagenes/imgParaCards/salaEstudioMagisterF.webp" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+                <a-text value="SALA DE DESCANSO MAGÍSTER" color="#E3173E" align="center" width="7"
+                    position="0 1.25 0.01"></a-text>
+                <a-text
+                    value="Zona tranquila pensada para el bienestar y relax entre largas jornadas académicas."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-descanso_magister; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+        </a-entity>
+
+        <a-entity id="hotspots-cafeteria_interior" class="grupo-hotspots" visible="false">
+            <a-image src="#img-info-icon" position="5 2.5 -8" scale="0.8 0.8 0.8" billboard
+                class="icono-hotspot" hotspot-info="target: #panel-info-cafeteria_interior; action: toggle">
+            </a-image>
+            <a-entity id="panel-info-cafeteria_interior" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+                <a-text value="CAFETERÍA INTERIOR ESAN" color="#E3173E" align="center" width="7"
+                    position="0 1.25 0.01"></a-text>
+                <a-text
+                    value="Ambiente moderno con variadas opciones gastronómicas que hacen más amena la vida universitaria."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-cafeteria_interior; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+        </a-entity>
+
+        <a-entity id="hotspots-robotica" class="grupo-hotspots" visible="false">
+            <a-circle src="#img-logo" radius="3.2" position="0 0.05 0" rotation="-90 0 0"
+                material="shader: flat"></a-circle>
+
+            <a-image src="#img-info-icon" position="0.13 2 -12.00" scale="0.8 0.8 0.8" billboard
+                class="clickable icono-hotspot" hotspot-info="target: #panel-info-laboratorio-robotica; action: toggle">
+            </a-image>
+
+            <a-entity id="panel-info-laboratorio-robotica" visible="false" smooth-follow card-style scale="1 1 1">
+                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
+
+                <a-text value="LAB DE ROBÓTICA" color="#E3173E" align="center" width="7" position="0 1.25 0.01"></a-text>
+
+                <a-text
+                    value="Espacio de investigación aplicada en robótica, automatización y cursos tecnológicos especializados."
+                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
+
+                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
+                    hotspot-info="target: #panel-info-laboratorio-robotica; action: close">
+                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+        </a-entity>
+
+
+        <a-entity id="rig" position="0 1.6 0" auto-height rotation="0 0 0">
+            <a-entity rotate-with-camera position="0 -1.5 0">
+                <a-circle src="#img-logo" radius="1.6" position="0 0 0" rotation="-90 0 0"
+                    material="shader: flat"></a-circle>
+            </a-entity>
+
+            <a-camera id="camara-principal" camera wasd-controls-enabled="false" look-controls="reverseMouseDrag: true">
+                <!-- Cursor para navegador web (desktop). En VR no aplica porque no hay mouse. -->
+                <a-entity cursor="fuse: false; rayOrigin: mouse"
+                    raycaster="objects: .clickable; far: 100">
+                </a-entity>
+
+                <a-entity id="overlay-fade" geometry="primitive: sphere; radius: 0.1"
+                    material="color: #000; transparent: true; opacity: 0; side: back" position="0 0 0"></a-entity>
+
+                <a-entity geometry="primitive: ring; radiusInner: 0.015; radiusOuter: 0.025"
+                    material="color: #00BFFF; shader: flat; opacity: 0.8" position="0 0 -1" raycaster="enabled: false">
+                </a-entity>
+            </a-camera>
+
+            <a-entity laser-controls="hand: right" raycaster="objects: .clickable" vr-controller-listener></a-entity>
+            <a-entity laser-controls="hand: left" raycaster="objects: .clickable" vr-controller-listener></a-entity>
+        </a-entity>
+
+    </a-scene>
+
+    <!-- populate panelData before card-style setTimeout strips a-text elements -->
+    <script>
+    (function () {
+        document.querySelectorAll('[id^="panel-info-"]').forEach(function (panel) {
+            var id = panel.id;
+            var grupo = panel.closest('.grupo-hotspots');
+            var sceneName = grupo ? grupo.id.replace('hotspots-', '') : '';
+            var textos = Array.from(panel.querySelectorAll('a-text')).filter(function (t) {
+                var par = t.parentElement;
+                while (par && par !== panel) {
+                    if (par.classList && par.classList.contains('close-btn')) return false;
+                    par = par.parentElement;
+                }
+                return true;
+            });
+            var titulo = textos[0] ? (textos[0].getAttribute('value') || '') : '';
+            var desc   = textos[1] ? (textos[1].getAttribute('value') || '') : '';
+            var imagenOverride = panel.getAttribute('data-imagen');
+            var escenaData = escenas[sceneName];
+            var imagen = imagenOverride || (escenaData ? escenaData.imagen : '');
+            if (imagen && imagen.startsWith('#')) {
+                var assetEl = document.getElementById(imagen.slice(1));
+                imagen = assetEl ? assetEl.src : '';
+            }
+            window.panelData[id] = { titulo: titulo, desc: desc, imagen: imagen, sceneName: sceneName };
+        });
+    })();
+    </script>
+
+    <!-- ── 2D INFO CARD ──────────────────────────────────── -->
+    <div id="card-backdrop"></div>
+    <div id="info-card-2d" role="dialog" aria-modal="true">
+        <div class="ic-img-wrap">
+            <img id="ic-img" src="" alt="">
+            <div class="ic-img-logo"><span>E</span></div>
+            <button class="ic-close" id="ic-close-btn" aria-label="Cerrar">✕</button>
+        </div>
+        <div class="ic-body">
+            <span class="ic-scene-tag" id="ic-scene-tag">ESAN</span>
+            <div class="ic-divider"></div>
+            <h2 class="ic-title" id="ic-title"></h2>
+            <p class="ic-desc" id="ic-desc"></p>
+        </div>
+    </div>
+
+    <!-- ── 2D FLECHAS ───────────────────────────────────── -->
+    <div id="loading-bar"></div>
+<div id="fade-cover" style="position:fixed;inset:0;background:#000;opacity:0;display:none;pointer-events:none;z-index:50;"></div>
+<div id="freeze-overlay" style="position:fixed;inset:0;z-index:55;display:none;pointer-events:none;background-size:cover;background-position:center;background-repeat:no-repeat;"></div>
+<div id="transition-overlay">
+    <div id="transition-spinner"></div>
+    <div id="transition-label">Cargando...</div>
+</div>
+    <div id="flechas-2d-overlay"></div>
+
+    <!-- ── 2D HOTSPOTS ──────────────────────────────────── -->
+    <div id="hotspots-2d-overlay"></div>
+
+    <!-- ── SIDE NAV ─────────────────────────────────────── -->
+    <div id="sidenav">
+        <button id="sidenav-toggle" title="Abrir/Cerrar menú">❮</button>
+        <div class="sidenav-logo">MAPA <span>ESAN</span></div>
+        <div class="sidenav-body" id="sidenav-body"></div>
+        <div class="sidenav-footer">
+            <a class="sidenav-link" href="https://esanlabs.github.io/Doble-videos-Esan/" target="_blank">
+                ▶ Ver trayectoria histórica
+            </a>
+        </div>
+    </div>
+
+    <div id="dbg-panel">
+        <div>Yaw (Y): <span id="dbg-y">0</span>°</div>
+        <div>Pitch (X): <span id="dbg-x">0</span>°</div>
+        <div style="border-top:1px solid #00FF8855;margin:4px 0"></div>
+        <div>Click → <span id="dbg-pos">—</span></div>
+    </div>
+    <div id="dbg-btn" onclick="dbgToggle()">📐 Coords</div>
+
+    <script>
+        var dbgOn = false, dbgRaf = null;
+        function dbgToggle() {
+            dbgOn = !dbgOn;
+            document.getElementById('dbg-panel').classList.toggle('on', dbgOn);
+            document.getElementById('dbg-btn').style.background = dbgOn ? 'rgba(0,150,60,0.9)' : 'rgba(0,0,0,0.75)';
+            if (dbgOn) {
+                dbgRaf = requestAnimationFrame(dbgTick);
+                document.querySelector('a-scene').addEventListener('click', dbgClick);
+            } else {
+                cancelAnimationFrame(dbgRaf);
+                document.querySelector('a-scene').removeEventListener('click', dbgClick);
+            }
+        }
+        function dbgTick() {
+            var cam = document.getElementById('camara-principal');
+            if (cam) {
+                var r = cam.getAttribute('rotation');
+                document.getElementById('dbg-y').textContent = r.y.toFixed(2);
+                document.getElementById('dbg-x').textContent = r.x.toFixed(2);
+            }
+            dbgRaf = requestAnimationFrame(dbgTick);
+        }
+        function dbgClick(e) {
+            var pt = e.detail && e.detail.intersection && e.detail.intersection.point;
+            if (!pt) return;
+            // Normaliza a dist=12 en XZ, Y fijo a 2 (altura ideal de flecha)
+            var dist = 12;
+            var mag = Math.sqrt(pt.x * pt.x + pt.z * pt.z) || 1;
+            var nx = (pt.x / mag * dist).toFixed(2);
+            var nz = (pt.z / mag * dist).toFixed(2);
+            var txt = nx + ' 2 ' + nz;
+            var full = "{ target: 'DESTINO', position: '" + txt + "', rotation: '0 0 0' },";
+            document.getElementById('dbg-pos').textContent = txt;
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(full).then(function () {
+                    dbgToast('Copiado: ' + full);
+                }).catch(function () { prompt('Copia esto:', full); });
+            } else {
+                prompt('Copia esto:', full);
+            }
+        }
+        function dbgToast(msg) {
+            var t = document.getElementById('dbg-toast');
+            if (!t) {
+                t = document.createElement('div');
+                t.id = 'dbg-toast';
+                t.style.cssText = 'position:fixed;bottom:60px;right:12px;background:#00AA44;color:#fff;font-family:monospace;font-size:12px;padding:7px 12px;border-radius:6px;z-index:9999;pointer-events:none;';
+                document.body.appendChild(t);
+            }
+            t.textContent = msg;
+            t.style.display = 'block';
+            clearTimeout(t._to);
+            t._to = setTimeout(function () { t.style.display = 'none'; }, 2500);
+        }
+    </script>
+</body>
+
+</html>
