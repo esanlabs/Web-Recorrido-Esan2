@@ -363,7 +363,7 @@
             'butacas': 'Butacas', 'biblioteca': 'Biblioteca', 'danza': 'Danza',
             'edificioD': 'Edificio D', 'conducta': 'Lab Conducta', 'edificioA': 'Edificio A',
             'ecoesan': 'EcoESAN', 'aula': 'Aula', 'laboratorio': 'Lab de Computo',
-            'datalab': 'Data Lab', 'cafeteria': 'Cafeteria', 'cafeteria_interior': 'Cafeteria Interior',
+            'datalab': 'Data Lab', 'cafeteria': 'Cafeteria', 'cafeteriaa': 'Cafeteria', 'cafeteria_interior': 'Cafeteria Interior',
             'fisica': 'Lab de Fisica', 'quimica': 'Lab de Quimica',
             'estudio_pregrado': 'Sala Estudio Pregrado', 'estudio_mba': 'Sala Estudio MBA',
             'estudio_magister': 'Sala Estudio Magister', 'descanso_magister': 'Sala Descanso Magister',
@@ -687,7 +687,7 @@
             'butacas': { imagen: 'imagenes/butacas%20actualizado.jpg', rotacionSky: '0 -90 0', flechas: [{ target: 'eventos', position: '-8 5 25', rotation: '0 5 0' }, { target: 'biblioteca', position: '10.53 3.29 -4.71', rotation: '0 114 0', imgSrc: '#img-flecha-derecha' }] },
             'biblioteca': { imagen: 'imagenes/biblioteca.jpg', rotacionSky: '0 -90 0', flechas: [{ target: 'eventos', position: '17 -1 20', rotation: '0 40 0' }] },
             'danza': { imagen: 'imagenes/danza.jpg', rotacionSky: '0 -90 0', flechas: [{ target: 'eventos', position: '7 -1 -25', rotation: '0 180 0' }] },
-            'cafeteria': {
+            'cafeteriaa': {
                 imagen: 'imagenes/cafeteriaa.jpg', rotacionSky: '0 -90 0',
                 flechas: [
                     { target: 'edificioA', position: '1.63 3.52 11.35', rotation: '0 8 0' },
@@ -699,7 +699,7 @@
             'cafeteria_interior': {
                 imagen: 'imagenes/cafeteria_interior.jpg', rotacionSky: '0 -90 0',
                 flechas: [
-                    { target: 'cafeteria', position: '0 2.5 11', rotation: '0 180 0', label: 'Cafeteria Exterior' }
+                    { target: 'cafeteriaa', position: '0 2.5 11', rotation: '0 180 0', label: 'Cafeteria Exterior' }
                 ]
             },
             'fuera': {
@@ -1350,7 +1350,7 @@
             { nombre: 'Académico',         escenas: ['aula','biblioteca','edificioA','edificioD'] },
             { nombre: 'Laboratorios',      escenas: ['fisica','quimica','conducta','laboratorio','datalab','robotica'] },
             { nombre: 'Sala de Estudios',  escenas: ['estudio_pregrado','estudio_mba','estudio_magister','descanso_magister'] },
-            { nombre: 'Servicios',         escenas: ['cafeteria','cafeteria_interior'] }
+            { nombre: 'Servicios',         escenas: ['cafeteriaa','cafeteria_interior'] }
         ];
 
         function buildSidenav() {
@@ -2763,7 +2763,7 @@
             </a-entity>
         </a-entity>
 
-        <a-entity id="hotspots-cafeteria" class="grupo-hotspots" visible="false">
+        <a-entity id="hotspots-cafeteriaa" class="grupo-hotspots" visible="false">
             <a-image src="#img-info-icon" position="-6.24 4.00 8.94" scale="0.8 0.8 0.8" billboard
                 class="clickable icono-hotspot" hotspot-info="target: #panel-info-cafeteria; action: toggle">
             </a-image>
