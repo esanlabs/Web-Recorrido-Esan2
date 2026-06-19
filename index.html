@@ -357,7 +357,7 @@
         const nombresDestinos = {
             'fuera': 'Exterior ESAN',
             'entrada': 'Entrada Principal', 'jardin': 'Jardin', 'fuente': 'Fuente',
-            'capilla': 'Capilla', 'fablab': 'FabLab', 'fablab2': 'FabLab 2',
+            'capilla': 'Capilla', 'fablab': 'FabLab 1', 'fablab2': 'FabLab 2',
             'voley': 'Cancha de Voley', 'basquet': 'Cancha de Basquet',
             'explanada': 'Explanada Convention', 'eventos': 'Eventos',
             'butacas': 'Butacas', 'biblioteca': 'Biblioteca', 'danza': 'Danza',
@@ -549,9 +549,12 @@
 
         const escenas = {
             'entrada': {
-                imagen: '#img-entrada',
+                imagen: 'imagenes/entrada esan_R.jpg',
                 rotacionSky: '0 90 0',
-                flechas: [{ target: 'jardin', position: '1.42 2 8.15', rotation: '0 -155 0' }]
+                flechas: [
+                    { target: 'jardin', position: '1.42 2 8.15', rotation: '0 -155 0' },
+                    { target: 'fuera', position: '-8.77 -1 -8.19', rotation: '0 0 0' }
+                ]
             },
             'jardin': {
                 imagen: 'imagenes/jardin.jpg', rotacionSky: '0 -90 0',
@@ -581,7 +584,7 @@
             'fablab2': {
                 imagen: 'imagenes/fablab%202.jpg', rotacionSky: '0 0 0',
                 flechas: [
-                    { target: 'fablab', position: '0 -1 -10', rotation: '0 0 0' }
+                    { target: 'fablab', position: '0 -1 -10', rotation: '0 0 0', imgSrc: '#img-flecha-derecha' }
                 ]
             },
             'voley': {
@@ -594,7 +597,7 @@
             'basquet': {
                 imagen: 'imagenes/basquet.webp', rotacionSky: '0 -90 0',
                 flechas: [
-                    { target: 'voley', position: '-20 -1 25', rotation: '0 -45 0' },
+                    { target: 'voley', position: '-20 -1 25', rotation: '0 -45 0', imgSrc: '#img-flecha-derecha' },
                     { target: 'explanada', position: '20 -1 -25', rotation: '0 140 0' },
                     { target: 'fablab', position: '0 -1 25', rotation: '0 180 0' }
                 ]
@@ -602,7 +605,7 @@
             'explanada': {
                 imagen: 'imagenes/conventionCenter.jpg', rotacionSky: '0 -90 0',
                 flechas: [
-                    { target: 'fisica',      position: '-11.43 2 -3.67', rotation: '0 0 0' },
+                    { target: 'fisica',      position: '-11.43 -1 -3.67', rotation: '0 0 0' },
                     { target: 'basquet',     position: '0.85 2 -11.97',  rotation: '0 0 0' },
                     { target: 'estudio_mba', position: '11.51 2 3.41',   rotation: '0 0 0' },
                     { target: 'ecoesan',     position: '10.63 2 5.57',   rotation: '0 90 0', imgSrc: '#img-flecha-derecha' },
@@ -621,7 +624,7 @@
             'edificioA': {
                 imagen: 'imagenes/edificioA.jpg', rotacionSky: '0 -90 0',
                 flechas: [
-                    { target: 'ecoesan', position: '5.67 4.34 9.64', rotation: '0 30 0', imgSrc: '#img-flecha-derecha' },
+                    { target: 'ecoesan', position: '10 4.34 7', rotation: '0 30 0', imgSrc: '#img-flecha-derecha' },
                     { target: 'edificioD', position: '-9 -1 -20', rotation: '0 -140 0', imgSrc: '#img-flecha-derecha' },
                     { target: 'aula', position: '0 -1 -10', rotation: '0 0 0' },
                     { target: 'laboratorio', position: '-10 -1 0', rotation: '0 -90 0' }
@@ -705,7 +708,7 @@
             'fuera': {
                 imagen: 'imagenes/fuera%20de%20esan.jpg', rotacionSky: '0 90 0',
                 flechas: [
-                    { target: 'entrada', position: '-10 2.5 -7.42', rotation: '0 0 0' }
+                    { target: 'entrada', position: '-10 -1 -7.42', rotation: '0 0 0' }
                 ]
             },
             'fisica': {
@@ -730,23 +733,22 @@
             'estudio_mba': {
                 imagen: 'imagenes/salas%20de%20estudio%20mba.jpg', rotacionSky: '0 180 0',
                 flechas: [
-                    { target: 'estudio_magister', position: '8.76 2.8 8.18', rotation: '0 0 0' },
+                    { target: 'estudio_magister', position: '8.76 2.8 8.18', rotation: '0 0 0', imgSrc: '#img-flecha-abajo' },
                     { target: 'descanso_magister', position: '1.14 2.8 11.94', rotation: '0 -176 0' }
                 ]
             },
             'estudio_magister': {
                 imagen: 'imagenes/salas%20de%20estudio%20magister.jpg', rotacionSky: '0 -90 0',
                 flechas: [
-                    { target: 'descanso_magister', position: '5.85 2.8 -11.35', rotation: '0 -195 0' },
                     { target: 'estudio_mba', position: '9.38 4.29 -6.13', rotation: '0 33 0' },
-                    { target: 'estudio_pregrado', position: '10.09 0 -6.16', rotation: '0 244 0' },
-                    { target: 'cafeteria', position: '8.83 0 7.49', rotation: '0 139 0' }
+                    { target: 'estudio_pregrado', position: '10.09 0 -6.16', rotation: '0 244 0', imgSrc: '#img-flecha-izquierda' },
+                    { target: 'cafeteria', position: '8.83 0 7.49', rotation: '0 139 0', imgSrc: '#img-flecha-derecha' }
                 ]
             },
             'descanso_magister': {
                 imagen: 'imagenes/sala%20de%20descanso%20magister.jpg', rotacionSky: '0 0 0',
                 flechas: [
-                    { target: 'estudio_magister', position: '9.10 2.8 -7.80', rotation: '0 0 0' },
+                    { target: 'estudio_magister', position: '12.00 2 -0.26', rotation: '0 0 0' },
                     { target: 'estudio_mba', position: '8.22 2.8 -8.72', rotation: '0 137 0' }
                 ]
             },
@@ -873,20 +875,19 @@
                 grupo.querySelectorAll('.icono-hotspot').forEach(function(i) { i.classList.remove('clickable'); });
             });
 
-            // Congelar pantalla: capturar frame actual y mostrarlo oscurecido
+            // Mostrar EsanLogo360.webp como overlay de transición
             var freeze = document.getElementById('freeze-overlay');
-            if (canvas) {
-                try {
-                    var snap = canvas.toDataURL('image/jpeg', 0.92);
-                    freeze.style.backgroundImage = 'url(' + snap + ')';
-                    freeze.style.transition = 'none';
-                    freeze.style.opacity    = '0';
-                    freeze.style.display    = 'block';
-                    freeze.getBoundingClientRect();
-                    freeze.style.transition = 'opacity 180ms ease-in';
-                    freeze.style.opacity    = '1';
-                } catch(e) { freeze.style.display = 'none'; }
-            }
+            freeze.style.backgroundImage    = 'url(imagenes/EsanLogo360.webp)';
+            freeze.style.backgroundSize     = '60%';
+            freeze.style.backgroundRepeat   = 'no-repeat';
+            freeze.style.backgroundPosition = 'center';
+            freeze.style.backgroundColor    = '#000000';
+            freeze.style.transition      = 'none';
+            freeze.style.opacity         = '0';
+            freeze.style.display         = 'block';
+            freeze.getBoundingClientRect();
+            freeze.style.transition      = 'opacity 200ms ease-in';
+            freeze.style.opacity         = '1';
             if (overlay) overlay.classList.add('activo');
 
             var _revealed = false;
@@ -1100,13 +1101,19 @@
         }
 
         window.onload = function () {
-            var datos = escenas['entrada'];
+            var datos = escenas['fuera'];
             var cieloFondo = document.querySelector('#cielo-fondo');
 
+            var _inicioRevelado = false;
             function revelarInicio() {
-                ocultarLoader();
-                precargarTodo('entrada');
-                try { generarHotspots2D('entrada'); } catch(e) {}
+                if (_inicioRevelado) return;
+                _inicioRevelado = true;
+                setTimeout(function() {
+                    ocultarLoader();
+                    precargarTodo('fuera');
+                    try { generarHotspots2D('fuera'); } catch(e) {}
+                    setTimeout(aplicarMarcosPaneles, 200);
+                }, 800);
             }
 
             cieloFondo.setAttribute('src', datos.imagen);
@@ -1116,20 +1123,17 @@
             cieloFondo.addEventListener('materialtextureloaded', function onFirstTexture() {
                 cieloFondo.removeEventListener('materialtextureloaded', onFirstTexture);
                 revelarInicio();
-                setTimeout(aplicarMarcosPaneles, 200);
             });
 
-            setTimeout(function () {
-                revelarInicio();
-                setTimeout(aplicarMarcosPaneles, 200);
-            }, 1500);
+            // Fallback: máximo 10s de pantalla de carga
+            setTimeout(revelarInicio, 10000);
 
             document.getElementById('btn-menu-2d').addEventListener('click', showMenu2D);
             document.getElementById('ic-close-btn').addEventListener('click', hideCard2D);
             document.getElementById('card-backdrop').addEventListener('click', hideCard2D);
             document.getElementById('sidenav-toggle').addEventListener('click', function() { toggleSidenav(); });
             buildSidenav();
-            actualizarActivoSidenav('entrada');
+            actualizarActivoSidenav('fuera');
             if (window.innerWidth < 640) toggleSidenav(true);
 
             var darkbg = document.querySelector('#hotspot-darkbg');
@@ -1529,9 +1533,6 @@
         <a-entity id="menu-3d" visible="false" scale="0.85 0.85 0.85"></a-entity>
 
         <a-entity id="hotspots-entrada" class="grupo-hotspots" visible="false">
-            <a-circle src="#img-logo" radius="3.2" position="0 0.05 0" rotation="-90 0 0"
-                material="shader: flat"></a-circle>
-
             <a-image src="#img-info-icon" position="0.17 2 12.00" scale="0.8 0.8 0.8" billboard
                 class="icono-hotspot" hotspot-info="target: #panel-info-entrada; action: toggle">
             </a-image>
@@ -1571,24 +1572,6 @@
                 </a-plane>
             </a-entity> -->
 
-            <a-image src="#img-info-icon" position="-11.97 2 0.78" scale="0.8 0.8 0.8" billboard
-                class="clickable icono-hotspot" hotspot-info="target: #panel-info-fuente-esan; action: toggle">
-            </a-image>
-
-            <a-entity id="panel-info-fuente-esan" visible="false" smooth-follow card-style scale="1 1 1">
-                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
-
-                <a-text value="FUENTE ESAN" color="#E3173E" align="center" width="7" position="0 1.25 0.01"></a-text>
-
-                <a-text
-                    value="Elemento emblemático y moderno que aporta identidad institucional en el ingreso principal."
-                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
-
-                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
-                    hotspot-info="target: #panel-info-fuente-esan; action: close">
-                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
-                </a-plane>
-            </a-entity>
 
             <a-image src="#img-info-icon" position="-6.53 2 10.07" scale="0.8 0.8 0.8" billboard
                 class="clickable icono-hotspot"
@@ -1650,27 +1633,8 @@
                 </a-plane>
             </a-entity>
 
-            <a-image src="#img-info-icon" position="10.93 2 -4.96" scale="0.8 0.8 0.8" billboard
-                class="clickable icono-hotspot" hotspot-info="target: #panel-info-decanato-jardin; action: toggle">
-            </a-image>
 
-            <a-entity id="panel-info-decanato-jardin" visible="false" smooth-follow card-style scale="1 1 1">
-                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
-
-                <a-text value="DIRECCIÓN ACADÉMICA" color="#E3173E" align="center" width="7"
-                    position="0 1.25 0.01"></a-text>
-
-                <a-text
-                    value="Oficinas directivas donde se coordinan los procesos que fortalecen la excelencia esanista."
-                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
-
-                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
-                    hotspot-info="target: #panel-info-decanato-jardin; action: close">
-                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
-                </a-plane>
-            </a-entity>
-
-            <a-image src="#img-info-icon" position="-2.90 2 11.64" scale="0.8 0.8 0.8" billboard
+            <a-image src="#img-info-icon" position="-2.85 3.5 11.66" scale="0.8 0.8 0.8" billboard
                 class="clickable icono-hotspot"
                 hotspot-info="target: #panel-info-aulas-auditorio-jardin; action: toggle">
             </a-image>
@@ -1712,53 +1676,16 @@
                 </a-plane>
             </a-entity>
 
-            <a-image src="#img-info-icon" position="-7.66 3.41 -8.59" scale="0.8 0.8 0.8" billboard
-                class="clickable icono-hotspot" hotspot-info="target: #panel-info-comedor-jardin; action: toggle">
-            </a-image>
-
-            <a-entity id="panel-info-comedor-jardin" data-imagen="imagenes/imgParaCards/comedorCentralF.webp" visible="false" smooth-follow card-style scale="1 1 1">
-                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
-
-                <a-text value="COMEDOR CENTRAL" color="#E3173E" align="center" width="7"
-                    position="0 1.25 0.01"></a-text>
-
-                <a-text
-                    value="Punto de encuentro ideal para compartir, descansar y recargar energías entre clases."
-                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
-
-                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
-                    hotspot-info="target: #panel-info-comedor-jardin; action: close">
-                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
-                </a-plane>
-            </a-entity>
         </a-entity>
 
 
         <a-entity id="hotspots-fuente" class="grupo-hotspots" visible="false">
-            <a-image src="#img-info-icon" position="11.28 -2.31 -3.38" scale="0.8 0.8 0.8" billboard
-                class="clickable icono-hotspot" hotspot-info="target: #panel-info-fuente; action: toggle">
-            </a-image>
-
-            <a-entity id="panel-info-fuente" visible="false" smooth-follow card-style scale="1 1 1">
-                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
-
-                <a-text value="FUENTE CENTRAL" color="#E3173E" align="center" width="7" position="0 1.15 0.01"></a-text>
-
-                <a-text
-                    value="Símbolo representativo en el corazón del campus que invita a la reflexión y al encuentro."
-                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
-
-                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.2 0.02"
-                    hotspot-info="target: #panel-info-fuente; action: close">
-                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
-                </a-plane>
-            </a-entity>
 
             <a-image src="#img-info-icon" position="7.51 3.20 -8.36" scale="0.8 0.8 0.8" billboard
                 class="clickable icono-hotspot" hotspot-info="target: #panel-info-comedor-fuente; action: toggle">
             </a-image>
 
-            <a-entity id="panel-info-comedor-fuente" visible="false" smooth-follow card-style scale="1 1 1">
+            <a-entity id="panel-info-comedor-fuente" data-imagen="imagenes/imgParaCards/comedorCentral.webp" visible="false" smooth-follow card-style scale="1 1 1">
                 <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
 
                 <a-text value="COMEDOR ESAN" color="#E3173E" align="center" width="7" position="0 1.25 0.01"></a-text>
@@ -1773,28 +1700,8 @@
                 </a-plane>
             </a-entity>
 
-            <a-image src="#img-info-icon" position="0.81 4.18 11.22" scale="0.8 0.8 0.8" billboard
-                class="clickable icono-hotspot"
-                hotspot-info="target: #panel-info-aulas-auditorio-fuente; action: toggle">
-            </a-image>
 
-            <a-entity id="panel-info-aulas-auditorio-fuente" visible="false" smooth-follow card-style scale="1 1 1">
-                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
-
-                <a-text value="AULAS TIPO AUDITORIO" color="#E3173E" align="center" width="7"
-                    position="0 1.25 0.01"></a-text>
-
-                <a-text
-                    value="Espacios académicos diseñados para conectar la teoría, la práctica y la discusión interactiva."
-                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
-
-                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
-                    hotspot-info="target: #panel-info-aulas-auditorio-fuente; action: close">
-                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
-                </a-plane>
-            </a-entity>
-
-            <a-image src="#img-info-icon" position="-8.95 4.85 -6.36" scale="0.8 0.8 0.8" billboard
+            <a-image src="#img-info-icon" position="-8.95 3 -6.36" scale="0.8 0.8 0.8" billboard
                 class="clickable icono-hotspot" hotspot-info="target: #panel-info-admin-fuente; action: toggle">
             </a-image>
 
@@ -1815,28 +1722,8 @@
             </a-entity>
 
 
-            <a-image src="#img-info-icon" position="11.12 3.59 -2.71" scale="0.8 0.8 0.8" billboard
-                class="clickable icono-hotspot"
-                hotspot-info="target: #panel-info-aulas-auditorio-fuente-2; action: toggle">
-            </a-image>
 
-            <a-entity id="panel-info-aulas-auditorio-fuente-2" visible="false" smooth-follow card-style scale="1 1 1">
-                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
-
-                <a-text value="AULAS TIPO AUDITORIO" color="#E3173E" align="center" width="7"
-                    position="0 1.25 0.01"></a-text>
-
-                <a-text
-                    value="Espacios académicos diseñados para conectar la teoría, la práctica y la discusión interactiva."
-                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
-
-                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
-                    hotspot-info="target: #panel-info-aulas-auditorio-fuente-2; action: close">
-                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
-                </a-plane>
-            </a-entity>
-
-            <a-image src="#img-info-icon" position="-8.44 0.34 8.52" scale="0.8 0.8 0.8" billboard
+            <a-image src="#img-info-icon" position="7.27 2 9.55" scale="0.8 0.8 0.8" billboard
                 class="clickable icono-hotspot" hotspot-info="target: #panel-info-descanso-fuente; action: toggle">
             </a-image>
 
@@ -1879,44 +1766,7 @@
         </a-entity>
 
         <a-entity id="hotspots-fablab" class="grupo-hotspots" visible="false">
-            <a-image src="#img-info-icon" position="-10.98 2.64 -4.04" scale="0.8 0.8 0.8" billboard
-                class="clickable icono-hotspot" hotspot-info="target: #panel-info-fablab; action: toggle">
-            </a-image>
 
-            <a-entity id="panel-info-fablab" data-imagen="imagenes/imgParaCards/fabLabF.webp" visible="false" smooth-follow card-style scale="1 1 1">
-                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
-
-                <a-text value="FABLAB ESAN" color="#E3173E" align="center" width="7" position="0 1.25 0.01"></a-text>
-
-                <a-text
-                    value="Laboratorio de fabricación digital para innovar, experimentar y convertir tus ideas en productos reales."
-                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
-
-                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
-                    hotspot-info="target: #panel-info-fablab; action: close">
-                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
-                </a-plane>
-            </a-entity>
-
-            <a-image src="#img-info-icon" position="-0.91 5.31 -10.72" scale="0.8 0.8 0.8" billboard
-                class="clickable icono-hotspot" hotspot-info="target: #panel-info-pizarra-fablab; action: toggle">
-            </a-image>
-
-            <a-entity id="panel-info-pizarra-fablab" visible="false" smooth-follow card-style scale="1 1 1">
-                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
-
-                <a-text value="PIZARRA COLABORATIVA" color="#E3173E" align="center" width="7"
-                    position="0 1.25 0.01"></a-text>
-
-                <a-text
-                    value="Recurso clave para estructurar ideas, planificar proyectos y construir soluciones en equipo."
-                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
-
-                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
-                    hotspot-info="target: #panel-info-pizarra-fablab; action: close">
-                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
-                </a-plane>
-            </a-entity>
 
             <a-image src="#img-info-icon" position="-11.40 1.63 3.39" scale="0.8 0.8 0.8" billboard
                 class="clickable icono-hotspot" hotspot-info="target: #panel-info-proyectos-fablab; action: toggle">
@@ -1958,125 +1808,10 @@
                 </a-plane>
             </a-entity>
 
-            <a-image src="#img-info-icon" position="-11.78 -0.89 2.11" scale="0.8 0.8 0.8" billboard
-                class="clickable icono-hotspot" hotspot-info="target: #panel-info-mesa-fablab; action: toggle">
-            </a-image>
 
-            <a-entity id="panel-info-mesa-fablab" visible="false" smooth-follow card-style scale="1 1 1">
-                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
 
-                <a-text value="MESA DE TRABAJO" color="#E3173E" align="center" width="7"
-                    position="0 1.25 0.01"></a-text>
 
-                <a-text
-                    value="Espacio de co-working para el desarrollo de ideas, ensamblaje de prototipos y aprendizaje aplicado."
-                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
 
-                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
-                    hotspot-info="target: #panel-info-mesa-fablab; action: close">
-                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
-                </a-plane>
-            </a-entity>
-
-            <a-image src="#img-info-icon" position="11.79 -1.03 2.00" scale="0.8 0.8 0.8" billboard
-                class="clickable icono-hotspot" hotspot-info="target: #panel-info-mesa2-fablab; action: toggle">
-            </a-image>
-
-            <a-entity id="panel-info-mesa2-fablab" visible="false" smooth-follow card-style scale="1 1 1">
-                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
-
-                <a-text value="MESA DE TRABAJO" color="#E3173E" align="center" width="7"
-                    position="0 1.25 0.01"></a-text>
-
-                <a-text
-                    value="Espacio de co-working para el desarrollo de ideas, ensamblaje de prototipos y aprendizaje aplicado."
-                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
-
-                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
-                    hotspot-info="target: #panel-info-mesa2-fablab; action: close">
-                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0.01"></a-text>
-                </a-plane>
-            </a-entity>
-
-            <a-image src="#img-info-icon" position="-6.36 0.89 -10.14" scale="0.8 0.8 0.8" billboard
-                class="clickable icono-hotspot" hotspot-info="target: #panel-info-docente-fablab; action: toggle">
-            </a-image>
-
-            <a-entity id="panel-info-docente-fablab" visible="false" smooth-follow card-style scale="1 1 1">
-                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
-
-                <a-text value="ESPACIO DEL DOCENTE" color="#E3173E" align="center" width="7"
-                    position="0 1.25 0.01"></a-text>
-
-                <a-text
-                    value="Zona de guía donde los facilitadores orientan actividades y supervisan el uso del laboratorio."
-                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
-
-                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
-                    hotspot-info="target: #panel-info-docente-fablab; action: close">
-                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
-                </a-plane>
-            </a-entity>
-
-            <a-image src="#img-info-icon" position="-0.92 2.99 11.58" scale="0.8 0.8 0.8" billboard
-                class="clickable icono-hotspot" hotspot-info="target: #panel-info-personal-fablab; action: toggle">
-            </a-image>
-
-            <a-entity id="panel-info-personal-fablab" visible="false" smooth-follow card-style scale="1 1 1">
-                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
-
-                <a-text value="ESPACIO DEL PERSONAL" color="#E3173E" align="center" width="7"
-                    position="0 1.25 0.01"></a-text>
-
-                <a-text
-                    value="Área técnica encargada de la coordinación, soporte y gestión de recursos del laboratorio."
-                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
-
-                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
-                    hotspot-info="target: #panel-info-personal-fablab; action: close">
-                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
-                </a-plane>
-            </a-entity>
-
-            <a-image src="#img-info-icon" position="5.84 2.78 10.10" scale="0.8 0.8 0.8" billboard
-                class="clickable icono-hotspot" hotspot-info="target: #panel-info-personal2-fablab; action: toggle">
-            </a-image>
-
-            <a-entity id="panel-info-personal2-fablab" visible="false" smooth-follow card-style scale="1 1 1">
-                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
-
-                <a-text value="ESPACIO DEL PERSONAL" color="#E3173E" align="center" width="7"
-                    position="0 1.25 0.01"></a-text>
-
-                <a-text
-                    value="Área técnica encargada de la coordinación, soporte y gestión de recursos del laboratorio."
-                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
-
-                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
-                    hotspot-info="target: #panel-info-personal2-fablab; action: close">
-                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
-                </a-plane>
-            </a-entity>
-
-            <a-image src="#img-info-icon" position="-9.65 1.96 6.85" scale="0.8 0.8 0.8" billboard
-                class="clickable icono-hotspot" hotspot-info="target: #panel-info-almacen-fablab; action: toggle">
-            </a-image>
-
-            <a-entity id="panel-info-almacen-fablab" visible="false" smooth-follow card-style scale="1 1 1">
-                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
-
-                <a-text value="ALMACÉN DE MATERIALES" color="#E3173E" align="center" width="7"
-                    position="0 1.25 0.01"></a-text>
-
-                <a-text
-                    value="Zona de stock organizada para mantener accesibles los insumos de diseño y prototipado."
-                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
-
-                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
-                    hotspot-info="target: #panel-info-almacen-fablab; action: close">
-                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
-                </a-plane>
-            </a-entity>
         </a-entity>
 
         <a-entity id="hotspots-fablab2" class="grupo-hotspots" visible="false">
@@ -2139,87 +1874,6 @@
                 </a-plane>
             </a-entity>
 
-            <a-image src="#img-info-icon" position="10.62 0.65 5.56" scale="0.8 0.8 0.8" billboard
-                class="clickable icono-hotspot" hotspot-info="target: #panel-info-control-fablab2; action: toggle">
-            </a-image>
-
-            <a-entity id="panel-info-control-fablab2" visible="false" smooth-follow card-style scale="1 1 1">
-                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
-
-                <a-text value="ESTACIÓN DE CONTROL" color="#E3173E" align="center" width="7"
-                    position="0 1.25 0.01"></a-text>
-
-                <a-text
-                    value="Punto operativo desde donde se configuran y supervisan las máquinas de fabricación digital."
-                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
-
-                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
-                    hotspot-info="target: #panel-info-control-fablab2; action: close">
-                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
-                </a-plane>
-            </a-entity>
-
-            <a-image src="#img-info-icon" position="11.77 -2.31 0.32" scale="0.8 0.8 0.8" billboard
-                class="clickable icono-hotspot" hotspot-info="target: #panel-info-mesa-trabajo-fablab2; action: toggle">
-            </a-image>
-
-            <a-entity id="panel-info-mesa-trabajo-fablab2" visible="false" smooth-follow card-style scale="1 1 1">
-                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
-
-                <a-text value="MESA DE TRABAJO" color="#E3173E" align="center" width="7"
-                    position="0 1.25 0.01"></a-text>
-
-                <a-text
-                    value="Entorno práctico diseñado para el ensamblaje de prototipos, pruebas y experimentación colaborativa."
-                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
-
-                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
-                    hotspot-info="target: #panel-info-mesa-trabajo-fablab2; action: close">
-                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
-                </a-plane>
-            </a-entity>
-
-            <a-image src="#img-info-icon" position="-9.64 -2.71 -6.61" scale="0.8 0.8 0.8" billboard
-                class="clickable icono-hotspot"
-                hotspot-info="target: #panel-info-mesa-trabajo2-fablab2; action: toggle">
-            </a-image>
-
-            <a-entity id="panel-info-mesa-trabajo2-fablab2" visible="false" smooth-follow card-style scale="1 1 1">
-                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
-
-                <a-text value="MESA DE TRABAJO" color="#E3173E" align="center" width="7"
-                    position="0 1.25 0.01"></a-text>
-
-                <a-text
-                    value="Entorno práctico diseñado para el ensamblaje de prototipos, pruebas y experimentación colaborativa."
-                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
-
-                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
-                    hotspot-info="target: #panel-info-mesa-trabajo2-fablab2; action: close">
-                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
-                </a-plane>
-            </a-entity>
-
-            <a-image src="#img-info-icon" position="-8.64 -1.75 8.14" scale="0.8 0.8 0.8" billboard
-                class="clickable icono-hotspot"
-                hotspot-info="target: #panel-info-mesa-trabajo3-fablab2; action: toggle">
-            </a-image>
-
-            <a-entity id="panel-info-mesa-trabajo3-fablab2" visible="false" smooth-follow card-style scale="1 1 1">
-                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
-
-                <a-text value="MESA DE TRABAJO" color="#E3173E" align="center" width="7"
-                    position="0 1.25 0.01"></a-text>
-
-                <a-text
-                    value="Entorno práctico diseñado para el ensamblaje de prototipos, pruebas y experimentación colaborativa."
-                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
-
-                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
-                    hotspot-info="target: #panel-info-mesa-trabajo3-fablab2; action: close">
-                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
-                </a-plane>
-            </a-entity>
         </a-entity>
 
         <a-entity id="hotspots-voley" class="grupo-hotspots" visible="false">
@@ -2243,25 +1897,6 @@
                 </a-plane>
             </a-entity>
 
-            <a-image src="#img-info-icon" position="-4.32 4.63 10.20" scale="0.8 0.8 0.8" billboard
-                class="clickable icono-hotspot" hotspot-info="target: #panel-info-bancapractica-voley; action: toggle">
-            </a-image>
-
-            <a-entity id="panel-info-bancapractica-voley" visible="false" smooth-follow card-style scale="1 1 1">
-                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
-
-                <a-text value="BANCA PRÁCTICA ESAN" color="#E3173E" align="center" width="7"
-                    position="0 1.25 0.01"></a-text>
-
-                <a-text
-                    value="Laboratorio vivencial que replica el entorno financiero real para simular créditos e inversiones."
-                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
-
-                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
-                    hotspot-info="target: #panel-info-bancapractica-voley; action: close">
-                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
-                </a-plane>
-            </a-entity>
 
             <a-image src="#img-info-icon" position="3.82 4.00 10.27" scale="0.8 0.8 0.8" billboard
                 class="clickable icono-hotspot" hotspot-info="target: #panel-info-fablab-voley; action: toggle">
@@ -2282,7 +1917,7 @@
                 </a-plane>
             </a-entity>
 
-            <a-image src="#img-info-icon" position="9.60 7.20 0.12" scale="0.8 0.8 0.8" billboard
+            <a-image src="#img-info-icon" position="9.60 5 0.12" scale="0.8 0.8 0.8" billboard
                 class="clickable icono-hotspot" hotspot-info="target: #panel-info-convention-voley; action: toggle">
             </a-image>
 
@@ -2346,7 +1981,7 @@
         </a-entity>
 
         <a-entity id="hotspots-explanada" class="grupo-hotspots" visible="false">
-            <a-image src="#img-info-icon" position="11.75 2 2.43" scale="0.8 0.8 0.8" billboard
+            <a-image src="#img-info-icon" position="11.83 4 2.00" scale="0.8 0.8 0.8" billboard
                 class="clickable icono-hotspot" hotspot-info="target: #panel-info-explanada; action: toggle">
             </a-image>
 
@@ -2366,7 +2001,7 @@
                 </a-plane>
             </a-entity>
 
-            <a-image src="#img-info-icon" position="-11.61 2 -3.04" scale="0.8 0.8 0.8" billboard
+            <a-image src="#img-info-icon" position="-11.57 3.5 -3.19" scale="0.8 0.8 0.8" billboard
                 class="clickable icono-hotspot" hotspot-info="target: #panel-info-lab-fisica-quimica; action: toggle">
             </a-image>
 
@@ -2805,7 +2440,7 @@
             <a-image src="#img-info-icon" position="5 2.5 -8" scale="0.8 0.8 0.8" billboard
                 class="icono-hotspot" hotspot-info="target: #panel-info-fisica; action: toggle">
             </a-image>
-            <a-entity id="panel-info-fisica" visible="false" smooth-follow card-style scale="1 1 1">
+            <a-entity id="panel-info-fisica" data-imagen="imagenes/imgParaCards/labFisicaF.webp" visible="false" smooth-follow card-style scale="1 1 1">
                 <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
                 <a-text value="LABORATORIO DE FÍSICA" color="#E3173E" align="center" width="7"
                     position="0 1.25 0.01"></a-text>
@@ -2910,27 +2545,9 @@
         </a-entity>
 
         <a-entity id="hotspots-cafeteria_interior" class="grupo-hotspots" visible="false">
-            <a-image src="#img-info-icon" position="5 2.5 -8" scale="0.8 0.8 0.8" billboard
-                class="icono-hotspot" hotspot-info="target: #panel-info-cafeteria_interior; action: toggle">
-            </a-image>
-            <a-entity id="panel-info-cafeteria_interior" visible="false" smooth-follow card-style scale="1 1 1">
-                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
-                <a-text value="CAFETERÍA INTERIOR ESAN" color="#E3173E" align="center" width="7"
-                    position="0 1.25 0.01"></a-text>
-                <a-text
-                    value="Ambiente moderno con variadas opciones gastronómicas que hacen más amena la vida universitaria."
-                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
-                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
-                    hotspot-info="target: #panel-info-cafeteria_interior; action: close">
-                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
-                </a-plane>
-            </a-entity>
         </a-entity>
 
         <a-entity id="hotspots-robotica" class="grupo-hotspots" visible="false">
-            <a-circle src="#img-logo" radius="3.2" position="0 0.05 0" rotation="-90 0 0"
-                material="shader: flat"></a-circle>
-
             <a-image src="#img-info-icon" position="0.13 2 -12.00" scale="0.8 0.8 0.8" billboard
                 class="clickable icono-hotspot" hotspot-info="target: #panel-info-laboratorio-robotica; action: toggle">
             </a-image>
@@ -2953,11 +2570,6 @@
 
 
         <a-entity id="rig" position="0 1.6 0" auto-height rotation="0 0 0">
-            <a-entity rotate-with-camera position="0 -1.5 0">
-                <a-circle src="#img-logo" radius="1.6" position="0 0 0" rotation="-90 0 0"
-                    material="shader: flat"></a-circle>
-            </a-entity>
-
             <a-camera id="camara-principal" camera wasd-controls-enabled="false" look-controls="reverseMouseDrag: true">
                 <!-- Cursor para navegador web (desktop). En VR no aplica porque no hay mouse. -->
                 <a-entity cursor="fuse: false; rayOrigin: mouse"
@@ -3012,7 +2624,7 @@
     <div id="info-card-2d" role="dialog" aria-modal="true">
         <div class="ic-img-wrap">
             <img id="ic-img" src="" alt="">
-            <div class="ic-img-logo"><span>E</span></div>
+
             <button class="ic-close" id="ic-close-btn" aria-label="Cerrar">✕</button>
         </div>
         <div class="ic-body">
