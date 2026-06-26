@@ -1101,38 +1101,71 @@
         }
 
         window.onload = function () {
-            var datos = escenas['fuera'];
+            var datos      = escenas['fuera'];
             var cieloFondo = document.querySelector('#cielo-fondo');
+            var videoEl    = document.getElementById('video-intro-player');
+            var overlayEl  = document.getElementById('video-intro');
 
-            var _inicioRevelado = false;
-            function revelarInicio() {
-                if (_inicioRevelado) return;
-                _inicioRevelado = true;
+            var _escenaMostrada = false;
+
+            // Paso 3: video terminó → activar hotspots y animación de cámara
+            function mostrarEscena() {
+                if (_escenaMostrada) return;
+                _escenaMostrada = true;
+                precargarTodo('fuera');
+                try { generarHotspots2D('fuera'); } catch(e) {}
+                setTimeout(aplicarMarcosPaneles, 200);
                 setTimeout(function() {
-                    ocultarLoader();
-                    precargarTodo('fuera');
-                    try { generarHotspots2D('fuera'); } catch(e) {}
-                    setTimeout(aplicarMarcosPaneles, 200);
-                    // Animación intro: girar desde la espalda (180°) hacia el frente (0°)
-                    setTimeout(function() {
-                        var rig = document.getElementById('rig');
-                        rig.setAttribute('animation__intro',
-                            'property: rotation; from: 0 180 0; to: 0 0 0; dur: 2800; easing: easeInOutCubic');
-                    }, 1100);
-                }, 800);
+                    var rig = document.getElementById('rig');
+                    if (rig) rig.setAttribute('animation__intro',
+                        'property: rotation; from: 0 180 0; to: 0 0 0; dur: 2800; easing: easeInOutCubic');
+                }, 400);
             }
 
+            // Paso 2: loader se oculta → mostrar video dentro de la web
+            function mostrarVideo() {
+                if (!videoEl || !overlayEl) { mostrarEscena(); return; }
+                overlayEl.style.display = 'flex';
+                // Fade in del video
+                requestAnimationFrame(function() {
+                    requestAnimationFrame(function() {
+                        overlayEl.style.opacity = '1';
+                    });
+                });
+                var promise = videoEl.play();
+                if (promise) promise.catch(function() {});
+
+                var _terminado = false;
+                function terminarVideo() {
+                    if (_terminado) return; _terminado = true;
+                    overlayEl.style.opacity = '0';
+                    setTimeout(function() {
+                        overlayEl.style.display = 'none';
+                        mostrarEscena();
+                    }, 600);
+                }
+                videoEl.addEventListener('ended', terminarVideo);
+                videoEl.addEventListener('error', terminarVideo);
+                overlayEl.addEventListener('click', terminarVideo); // clic para saltar
+                setTimeout(terminarVideo, 60000); // fallback 60s
+            }
+
+            // Paso 1: cargar el cielo → cuando esté listo, ocultar loader y mostrar video
             cieloFondo.setAttribute('src', datos.imagen);
             cieloFondo.setAttribute('rotation', datos.rotacionSky || '0 -90 0');
             generarFlechas(datos.flechas);
 
-            cieloFondo.addEventListener('materialtextureloaded', function onFirstTexture() {
-                cieloFondo.removeEventListener('materialtextureloaded', onFirstTexture);
-                revelarInicio();
+            var _skyDone = false;
+            function onSkyListo() {
+                if (_skyDone) return; _skyDone = true;
+                ocultarLoader();
+                mostrarVideo();
+            }
+            cieloFondo.addEventListener('materialtextureloaded', function onLoad() {
+                cieloFondo.removeEventListener('materialtextureloaded', onLoad);
+                onSkyListo();
             });
-
-            // Fallback: máximo 10s de pantalla de carga
-            setTimeout(revelarInicio, 10000);
+            setTimeout(onSkyListo, 10000); // fallback 10s
 
             document.getElementById('btn-menu-2d').addEventListener('click', showMenu2D);
             document.getElementById('ic-close-btn').addEventListener('click', hideCard2D);
@@ -1421,6 +1454,19 @@
 </head>
 
 <body>
+    <!-- ── VIDEO INTRO (aparece dentro de la web, debajo del menú) ── -->
+    <div id="video-intro" style="
+        position: fixed; inset: 0; z-index: 500;
+        background: #000;
+        display: none; align-items: center; justify-content: center;
+        opacity: 0; transition: opacity 0.6s ease;
+    ">
+        <video id="video-intro-player" muted playsinline
+            style="width:100%;height:100%;object-fit:cover;">
+            <source src="imagenes/Videos/esan_flythrough.mp4" type="video/mp4">
+        </video>
+    </div>
+
     <div id="pantalla-carga">
         <div style="display:flex;flex-direction:column;align-items:center;gap:10px;">
             <!-- Logo 360 ESAN -->
