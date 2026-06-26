@@ -1113,6 +1113,12 @@
                     precargarTodo('fuera');
                     try { generarHotspots2D('fuera'); } catch(e) {}
                     setTimeout(aplicarMarcosPaneles, 200);
+                    // Animación intro: girar desde la espalda (180°) hacia el frente (0°)
+                    setTimeout(function() {
+                        var rig = document.getElementById('rig');
+                        rig.setAttribute('animation__intro',
+                            'property: rotation; from: 0 180 0; to: 0 0 0; dur: 2800; easing: easeInOutCubic');
+                    }, 1100);
                 }, 800);
             }
 
@@ -2569,7 +2575,7 @@
         </a-entity>
 
 
-        <a-entity id="rig" position="0 1.6 0" auto-height rotation="0 0 0">
+        <a-entity id="rig" position="0 1.6 0" auto-height rotation="0 180 0">
             <a-camera id="camara-principal" camera wasd-controls-enabled="false" look-controls="reverseMouseDrag: true">
                 <!-- Cursor para navegador web (desktop). En VR no aplica porque no hay mouse. -->
                 <a-entity cursor="fuse: false; rayOrigin: mouse"
