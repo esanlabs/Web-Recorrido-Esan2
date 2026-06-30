@@ -1563,7 +1563,15 @@
         </script>
 
         <a-sky id="cielo-fondo" radius="500" rotation="0 -90 0"></a-sky>
-        
+
+        <a-plane id="logo-piso"
+            src="#img-logo"
+            position="0 0 0"
+            rotation="-90 0 0"
+            width="8" height="8"
+            material="shader: flat; transparent: true; opacity: 0.85; src: #img-logo">
+        </a-plane>
+
         <a-light type="ambient" color="#FFF" intensity="1.5"></a-light>
 
         <a-entity id="hotspot-darkbg" geometry="primitive: sphere; radius: 100"
