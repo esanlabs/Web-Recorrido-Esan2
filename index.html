@@ -164,14 +164,6 @@
         .ic-body {
             padding: 20px 24px 24px;
         }
-        .ic-scene-tag {
-            display: inline-block;
-            background: #fde8ec; color: var(--esan-red);
-            font-size: 10px; font-weight: 700;
-            letter-spacing: 1.2px; text-transform: uppercase;
-            padding: 3px 10px; border-radius: 20px;
-            margin-bottom: 10px;
-        }
         .ic-title {
             font-family: var(--font-titulo);
             font-size: 17px; font-weight: 700;
@@ -1291,14 +1283,11 @@
             var imgEl    = document.getElementById('ic-img');
             var titleEl  = document.getElementById('ic-title');
             var descEl   = document.getElementById('ic-desc');
-            var tagEl    = document.getElementById('ic-scene-tag');
             var card     = document.getElementById('info-card-2d');
             var backdrop = document.getElementById('card-backdrop');
 
             titleEl.textContent = data.titulo;
             descEl.textContent  = data.desc;
-            tagEl.textContent   = (nombresDestinos[data.sceneName] || data.sceneName || 'ESAN')
-                                    .replace(/\n/g, ' ').toUpperCase();
 
             if (data.imagen) {
                 imgEl.src = data.imagen;
@@ -1623,27 +1612,6 @@
                     <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
                 </a-plane>
             </a-entity> -->
-
-
-            <a-image src="#img-info-icon" position="-6.53 2 10.07" scale="0.8 0.8 0.8" billboard
-                class="clickable icono-hotspot"
-                hotspot-info="target: #panel-info-espera-transporte-entrada; action: toggle">
-            </a-image>
-
-            <a-entity id="panel-info-espera-transporte-entrada" data-imagen="imagenes/imgParaCards/entradaF.jpg" visible="false" smooth-follow card-style scale="1 1 1">
-                <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
-
-                <a-text value="ZONA DE ESPERA" color="#E3173E" align="center" width="7" position="0 1.25 0.01"></a-text>
-
-                <a-text
-                    value="Espacio práctico, ordenado y seguro para coordinar tu transporte al entrar o salir."
-                    color="#333333" align="center" width="3.5" position="0 -0.15 0.01" wrap-count="35"></a-text>
-
-                <a-plane class="clickable close-btn" color="#FF0000" width="0.4" height="0.4" position="1.75 1.3 0.02"
-                    hotspot-info="target: #panel-info-espera-transporte-entrada; action: close">
-                    <a-text value="X" color="#FFFFFF" align="center" width="6" position="0 0 0.01"></a-text>
-                </a-plane>
-            </a-entity>
         </a-entity>
 
         <a-entity id="hotspots-jardin" class="grupo-hotspots" visible="false">
@@ -2662,9 +2630,8 @@
             <button class="ic-close" id="ic-close-btn" aria-label="Cerrar">✕</button>
         </div>
         <div class="ic-body">
-            <span class="ic-scene-tag" id="ic-scene-tag">ESAN</span>
-            <div class="ic-divider"></div>
             <h2 class="ic-title" id="ic-title"></h2>
+            <div class="ic-divider"></div>
             <p class="ic-desc" id="ic-desc"></p>
         </div>
     </div>
