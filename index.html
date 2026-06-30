@@ -761,6 +761,7 @@
         };
 
         var _isDragging = false;
+        var _transitioning = true;
         var _mousedownX = 0, _mousedownY = 0;
         document.addEventListener('mousedown', function (e) {
             _mousedownX = e.clientX; _mousedownY = e.clientY; _isDragging = false;
@@ -788,7 +789,7 @@
             init: function () {
                 var el = this.el;
                 el.addEventListener('click', function (evt) {
-                    if (_isDragging) return;
+                    if (_isDragging || _transitioning) return;
                     var target = el.getAttribute('data-target');
                     var direccionDeseada = el.getAttribute('data-mirar');
                     if (target && target !== "null") iniciarTransicion(target, direccionDeseada);
@@ -810,6 +811,7 @@
             init: function () {
                 var el = this.el;
                 el.addEventListener('click', function () {
+                    if (_transitioning) return;
                     var target = el.getAttribute('data-target');
                     if (target) { toggleMenu3D(); iniciarTransicion(target, "0 0 0"); }
                 });
@@ -848,9 +850,11 @@
         });
 
         function iniciarTransicion(nombreEscena, direccionDeseada) {
+            if (_transitioning) return;
+            _transitioning = true;
             hideCard2D();
             var datos = escenas[nombreEscena];
-            if (!datos) return;
+            if (!datos) { _transitioning = false; return; }
 
             var contenedorFlechas = document.querySelector('#flechas-container');
             var cieloFondo        = document.querySelector('#cielo-fondo');
@@ -894,6 +898,7 @@
             function revelarEscena() {
                 if (_revealed) return;
                 _revealed = true;
+                _transitioning = false;
                 cieloFondo.removeEventListener('materialtextureloaded', revelarEscena);
                 if (overlay) overlay.classList.remove('activo');
                 freeze.style.transition = 'opacity 450ms ease-out';
@@ -967,7 +972,7 @@
 
                 (function(target, mirar) {
                     div.addEventListener('click', function() {
-                        if (!_isDragging) iniciarTransicion(target, mirar);
+                        if (!_isDragging && !_transitioning) iniciarTransicion(target, mirar);
                     });
                     div.addEventListener('mouseenter', function() {
                         var dest = escenas[target];
@@ -1112,6 +1117,7 @@
             function mostrarEscena() {
                 if (_escenaMostrada) return;
                 _escenaMostrada = true;
+                _transitioning = false;
                 precargarTodo('fuera');
                 try { generarHotspots2D('fuera'); } catch(e) {}
                 setTimeout(aplicarMarcosPaneles, 200);
@@ -1418,6 +1424,7 @@
                     btn.id = 'snav-' + key;
                     btn.textContent = nombresDestinos[key] || key;
                     btn.addEventListener('click', function() {
+                        if (_transitioning) return;
                         iniciarTransicion(key, '0 0 0');
                         if (window.innerWidth < 640) toggleSidenav(true);
                     });
@@ -2579,7 +2586,7 @@
                 class="clickable icono-hotspot" hotspot-info="target: #panel-info-laboratorio-robotica; action: toggle">
             </a-image>
 
-            <a-entity id="panel-info-laboratorio-robotica" data-imagen="imagenes/robotica.webp" visible="false" smooth-follow card-style scale="1 1 1">
+            <a-entity id="panel-info-laboratorio-robotica" data-imagen="imagenes/imgParaCards/roboticaF.webp" visible="false" smooth-follow card-style scale="1 1 1">
                 <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
 
                 <a-text value="LAB DE ROBÓTICA" color="#E3173E" align="center" width="7" position="0 1.25 0.01"></a-text>
