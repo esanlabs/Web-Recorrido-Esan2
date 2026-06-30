@@ -765,6 +765,21 @@
             }
         });
 
+        AFRAME.registerComponent('no-cull', {
+            init: function () {
+                var el = this.el;
+                function disableCull() {
+                    el.object3D.frustumCulled = false;
+                    el.object3D.traverse(function (o) {
+                        o.frustumCulled = false;
+                        o.renderOrder = 999;
+                    });
+                }
+                disableCull();
+                el.addEventListener('object3dset', disableCull);
+            }
+        });
+
         AFRAME.registerComponent('billboard', {
             init: function () {
                 this.el.object3D.frustumCulled = false;
@@ -1497,6 +1512,55 @@
         (function () {
             var S = 128;
 
+            function dibujarLogoPiso(ctx) {
+                var cx = 256, cy = 256, r = 248;
+
+                function base() {
+                    ctx.clearRect(0, 0, 512, 512);
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+                    ctx.closePath();
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fill();
+                    ctx.lineWidth = 14;
+                    ctx.strokeStyle = '#E3173E';
+                    ctx.stroke();
+                    ctx.restore();
+                    ctx.fillStyle = '#696A6D';
+                    ctx.font = 'bold 46px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText('ESAN', cx, 170);
+                    ctx.fillStyle = '#E3173E';
+                    ctx.font = 'bold 230px Arial';
+                    ctx.fillText('e', cx, 318);
+                }
+
+                base();
+
+                var img = new Image();
+                img.onload = function () {
+                    base();
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, r - 8, 0, Math.PI * 2);
+                    ctx.clip();
+                    var zoom = 1.38;
+                    var offset = (512 - 512 * zoom) / 2;
+                    ctx.drawImage(img, offset, offset, 512 * zoom, 512 * zoom);
+                    ctx.restore();
+                    var el = document.getElementById('logo-piso');
+                    if (el) {
+                        var mesh = el.getObject3D('mesh');
+                        if (mesh && mesh.material && mesh.material.map) {
+                            mesh.material.map.needsUpdate = true;
+                        }
+                    }
+                };
+                img.src = 'imagenes/pisoLogo.webp';
+            }
+
             function dibujarInfo(ctx) {
                 ctx.fillStyle = '#FF0000';
                 ctx.beginPath(); ctx.arc(64, 64, 58, 0, Math.PI * 2); ctx.fill();
@@ -1536,17 +1600,7 @@
             }
 
             [
-                ['img-logo', function (c) {
-                    var img = new Image();
-                    img.onload = function() {
-                        c.clearRect(0, 0, 512, 512);
-                        // Ampliar 22% para recortar el borde negro del logo
-                        var zoom = 1.38;
-                        var offset = (512 - 512 * zoom) / 2;
-                        c.drawImage(img, offset, offset, 512 * zoom, 512 * zoom);
-                    };
-                    img.src = 'imagenes/pisoLogo.webp';
-                }],
+                ['img-logo', function (c) { dibujarLogoPiso(c); }],
                 ['img-info-icon',      function (c) { dibujarInfo(c); }],
                 ['img-flecha-plana',   function (c) { dibujarFlecha(c, 0); }],
                 ['img-flecha-derecha', function (c) { dibujarFlecha(c, 90); }],
@@ -1564,13 +1618,14 @@
 
         <a-sky id="cielo-fondo" radius="500" rotation="0 -90 0"></a-sky>
 
-        <a-plane id="logo-piso"
+        <a-circle id="logo-piso"
             src="#img-logo"
-            position="0 0 0"
+            position="0 0.01 0"
             rotation="-90 0 0"
-            width="8" height="8"
-            material="shader: flat; transparent: true; opacity: 0.85; src: #img-logo">
-        </a-plane>
+            radius="1.5"
+            material="shader: flat; transparent: false; opacity: 1; src: #img-logo; side: double; depthTest: false; depthWrite: false"
+            no-cull>
+        </a-circle>
 
         <a-light type="ambient" color="#FFF" intensity="1.5"></a-light>
 
