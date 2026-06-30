@@ -1521,11 +1521,8 @@
                     ctx.beginPath();
                     ctx.arc(cx, cy, r, 0, Math.PI * 2);
                     ctx.closePath();
-                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillStyle = '#E3173E';
                     ctx.fill();
-                    ctx.lineWidth = 14;
-                    ctx.strokeStyle = '#E3173E';
-                    ctx.stroke();
                     ctx.restore();
                     ctx.fillStyle = '#696A6D';
                     ctx.font = 'bold 46px Arial';
@@ -1546,7 +1543,7 @@
                     ctx.beginPath();
                     ctx.arc(cx, cy, r - 8, 0, Math.PI * 2);
                     ctx.clip();
-                    var zoom = 1.38;
+                    var zoom = 0.99;
                     var offset = (512 - 512 * zoom) / 2;
                     ctx.drawImage(img, offset, offset, 512 * zoom, 512 * zoom);
                     ctx.restore();
@@ -1623,7 +1620,7 @@
             position="0 0.01 0"
             rotation="-90 0 0"
             radius="1.5"
-            material="shader: flat; transparent: false; opacity: 1; src: #img-logo; side: double; depthTest: false; depthWrite: false"
+            material="shader: flat; transparent: true; opacity: 1; src: #img-logo; side: double; depthTest: false; depthWrite: false"
             no-cull>
         </a-circle>
 
@@ -2377,7 +2374,7 @@
         </a-entity>
 
         <a-entity id="hotspots-ecoesan" class="grupo-hotspots" visible="false">
-            <a-image src="#img-info-icon" position="1.38 2.62 -11.63" scale="0.8 0.8 0.8" billboard
+            <a-image src="#img-info-icon" position="1.08 2.62 -11.63" scale="0.8 0.8 0.8" billboard
                 class="clickable icono-hotspot" hotspot-info="target: #panel-info-ecoesan; action: toggle">
             </a-image>
 
