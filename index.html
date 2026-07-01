@@ -1669,11 +1669,8 @@
             function dibujarYtPlay(ctx) {
                 var W = 512, H = 320;
                 ctx.clearRect(0, 0, W, H);
-                // Fondo negro semitransparente
-                ctx.fillStyle = 'rgba(0,0,0,0.72)';
-                ctx.fillRect(0, 0, W, H);
-                // Botón YouTube (rectángulo rojo redondeado)
-                var bx = 136, by = 90, bw = 240, bh = 140, br = 28;
+                // Botón YouTube (rectángulo rojo redondeado) - más grande
+                var bx = 80, by = 56, bw = 352, bh = 208, br = 32;
                 ctx.fillStyle = '#FF0000';
                 ctx.beginPath();
                 ctx.moveTo(bx + br, by);
@@ -1687,13 +1684,13 @@
                 ctx.arcTo(bx, by, bx + br, by, br);
                 ctx.closePath();
                 ctx.fill();
-                // Triángulo play blanco centrado
+                // Triángulo play blanco centrado - más grande
                 var cx = W / 2, cy = H / 2;
                 ctx.fillStyle = '#FFFFFF';
                 ctx.beginPath();
-                ctx.moveTo(cx - 38, cy - 42);
-                ctx.lineTo(cx - 38, cy + 42);
-                ctx.lineTo(cx + 52, cy);
+                ctx.moveTo(cx - 52, cy - 58);
+                ctx.lineTo(cx - 52, cy + 58);
+                ctx.lineTo(cx + 72, cy);
                 ctx.closePath();
                 ctx.fill();
             }
@@ -2717,14 +2714,14 @@
 
         <!-- ── PANTALLAS YOUTUBE ─────────────────────────────── -->
         <a-entity class="yt-screen-3d" data-scene="robotica" visible="false"
-            position="-12.00 2 -0.22" rotation="0 90 0" no-cull>
+            position="-14.00 2 -0.22" rotation="0 90 0" no-cull>
             <!-- Botón play YouTube (ocupa toda la pantalla del TV) -->
-            <a-plane src="#img-yt-play" width="4.2" height="2.6"
+            <a-plane src="#img-yt-play" width="8.4" height="5.7"
                 material="shader: flat; transparent: true; side: double; depthTest: false"
                 position="0 0 0.06" no-cull>
             </a-plane>
             <!-- Área clickable -->
-            <a-plane class="clickable" width="4.2" height="2.6"
+            <a-plane class="clickable" width="5.4" height="3.4"
                 material="color: #000; opacity: 0.001; shader: flat; transparent: true; side: double; depthTest: false"
                 position="0 0 0.07"
                 no-cull
