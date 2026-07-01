@@ -521,6 +521,12 @@
 
                 el.addEventListener('click', function (evt) {
                     evt.stopPropagation();
+                    // Verificar que el grupo padre esté activo antes de disparar
+                    var grupo = el.parentNode;
+                    while (grupo && !(grupo.classList && grupo.classList.contains('grupo-hotspots'))) {
+                        grupo = grupo.parentNode;
+                    }
+                    if (grupo && grupo.object3D && !grupo.object3D.visible) return;
                     if (data.action === 'close') {
                         hideCard2D();
                     } else {
@@ -913,7 +919,7 @@
                 freeze.style.opacity    = '0';
                 setTimeout(function() { freeze.style.display = 'none'; freeze.style.backgroundImage = ''; }, 450);
                 contenedorFlechas.setAttribute('visible', 'true');
-                try { generarHotspots2D(nombreEscena); } catch(e) {}
+                setTimeout(function() { try { generarHotspots2D(nombreEscena); } catch(e) {} }, 400);
                 actualizarActivoSidenav(nombreEscena);
                 precargarAdyacentes(nombreEscena);
             }
