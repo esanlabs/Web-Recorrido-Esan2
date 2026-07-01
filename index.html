@@ -311,6 +311,33 @@
             70%       { transform: translate(-50%, -50%) translateY(-2px); }
         }
         .hotspot-2d:hover { animation: hotspot-jump 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) infinite; }
+        /* ── YOUTUBE MODAL ───────────────────────────── */
+        #yt-modal {
+            display: none; position: fixed; inset: 0; z-index: 3500;
+            align-items: center; justify-content: center;
+        }
+        #yt-modal.visible { display: flex; }
+        #yt-backdrop {
+            position: absolute; inset: 0;
+            background: rgba(0,0,0,0.88);
+            backdrop-filter: blur(6px);
+        }
+        #yt-box {
+            position: relative; z-index: 1;
+            width: min(900px, 94vw);
+            aspect-ratio: 16/9;
+            border-radius: 10px; overflow: hidden;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.7);
+        }
+        #yt-iframe { width: 100%; height: 100%; border: none; display: block; }
+        #yt-close {
+            position: absolute; top: -44px; right: 0;
+            background: rgba(255,255,255,0.15); border: none;
+            color: #fff; font-size: 20px; width: 36px; height: 36px;
+            border-radius: 50%; cursor: pointer; transition: background 0.2s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        #yt-close:hover { background: var(--color-primario); }
         @keyframes spin360 { to { transform: rotate(360deg); } }
         @keyframes loadBar {
             0%   { width: 0%; margin-left: 0; }
@@ -787,6 +814,36 @@
             }
         });
 
+        function abrirYoutube(videoId) {
+            var modal   = document.getElementById('yt-modal');
+            var iframe  = document.getElementById('yt-iframe');
+            iframe.src  = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1&rel=0';
+            modal.classList.add('visible');
+        }
+        function cerrarYoutube() {
+            var modal  = document.getElementById('yt-modal');
+            var iframe = document.getElementById('yt-iframe');
+            modal.classList.remove('visible');
+            iframe.src = '';
+        }
+
+        AFRAME.registerComponent('yt-screen', {
+            schema: { videoId: { type: 'string' } },
+            init: function () {
+                var videoId = this.data.videoId;
+                this.el.addEventListener('click', function (evt) {
+                    evt.stopPropagation();
+                    if (_appReady) abrirYoutube(videoId);
+                });
+                this.el.addEventListener('mouseenter', function () {
+                    this.setAttribute('material', 'opacity', 0.08);
+                }.bind(this.el));
+                this.el.addEventListener('mouseleave', function () {
+                    this.setAttribute('material', 'opacity', 0.001);
+                }.bind(this.el));
+            }
+        });
+
         AFRAME.registerComponent('billboard', {
             init: function () {
                 this.el.object3D.frustumCulled = false;
@@ -867,6 +924,8 @@
             if (_transitioning) return;
             _transitioning = true;
             hideCard2D();
+            cerrarYoutube();
+            document.querySelectorAll('.yt-screen-3d').forEach(function(s) { s.setAttribute('visible', 'false'); });
             var datos = escenas[nombreEscena];
             if (!datos) { _transitioning = false; return; }
 
@@ -919,6 +978,7 @@
                 freeze.style.opacity    = '0';
                 setTimeout(function() { freeze.style.display = 'none'; freeze.style.backgroundImage = ''; }, 450);
                 contenedorFlechas.setAttribute('visible', 'true');
+                document.querySelectorAll('.yt-screen-3d[data-scene="' + nombreEscena + '"]').forEach(function(s) { s.setAttribute('visible', 'true'); });
                 setTimeout(function() { try { generarHotspots2D(nombreEscena); } catch(e) {} }, 400);
                 actualizarActivoSidenav(nombreEscena);
                 precargarAdyacentes(nombreEscena);
@@ -2621,6 +2681,27 @@
         </a-entity>
 
 
+        <!-- ── PANTALLAS YOUTUBE ─────────────────────────────── -->
+        <a-entity class="yt-screen-3d" data-scene="robotica" visible="false"
+            position="-12.00 2 -0.22" rotation="0 90 0">
+            <!-- Marco exterior / TV -->
+            <a-box width="4.0" height="2.6" depth="0.10" color="#1a1a1a" material="shader: flat"></a-box>
+            <!-- Pantalla oscura -->
+            <a-plane width="3.6" height="2.2" color="#0d0d0d" material="shader: flat" position="0 0 0.06"></a-plane>
+            <!-- Botón YouTube (rojo) -->
+            <a-plane width="1.1" height="0.78" color="#FF0000" material="shader: flat" position="0 0.12 0.07"></a-plane>
+            <!-- Triángulo play -->
+            <a-text value="▶" color="#FFFFFF" align="center" width="2.8" position="0 0.12 0.08"></a-text>
+            <!-- Título -->
+            <a-text value="360° Universidad ESAN" color="#DDDDDD" align="center" width="4.8" position="0 -0.72 0.07"></a-text>
+            <!-- Área clickable invisible -->
+            <a-plane class="clickable" width="3.6" height="2.2"
+                material="color: #FF0000; opacity: 0.001; shader: flat; transparent: true"
+                position="0 0 0.09"
+                yt-screen="videoId: nqAgi375ZpM">
+            </a-plane>
+        </a-entity>
+
         <a-entity id="rig" position="0 1.6 0" auto-height rotation="0 180 0">
             <a-camera id="camara-principal" camera wasd-controls-enabled="false" look-controls="reverseMouseDrag: true">
                 <!-- Cursor para navegador web (desktop). En VR no aplica porque no hay mouse. -->
@@ -2672,6 +2753,18 @@
     </script>
 
     <!-- ── 2D INFO CARD ──────────────────────────────────── -->
+    <!-- ── YOUTUBE MODAL ───────────────────────────────── -->
+    <div id="yt-modal">
+        <div id="yt-backdrop" onclick="cerrarYoutube()"></div>
+        <div id="yt-box">
+            <button id="yt-close" onclick="cerrarYoutube()" aria-label="Cerrar video">✕</button>
+            <iframe id="yt-iframe" src="" frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen>
+            </iframe>
+        </div>
+    </div>
+
     <div id="card-backdrop"></div>
     <div id="info-card-2d" role="dialog" aria-modal="true">
         <div class="ic-img-wrap">
