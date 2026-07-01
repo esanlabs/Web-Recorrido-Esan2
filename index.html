@@ -754,6 +754,7 @@
 
         var _isDragging = false;
         var _transitioning = true;
+        var _appReady = false;
         var _mousedownX = 0, _mousedownY = 0;
         document.addEventListener('mousedown', function (e) {
             _mousedownX = e.clientX; _mousedownY = e.clientY; _isDragging = false;
@@ -1125,6 +1126,7 @@
                 if (_escenaMostrada) return;
                 _escenaMostrada = true;
                 _transitioning = false;
+                _appReady = true;
                 precargarTodo('fuera');
                 try { generarHotspots2D('fuera'); } catch(e) {}
                 setTimeout(aplicarMarcosPaneles, 200);
@@ -1291,6 +1293,7 @@
         window.panelData = {};
 
         function showCard2D(panelId) {
+            if (!_appReady) return;
             var id = panelId.replace(/^#/, '');
             var data = window.panelData[id];
             if (!data) return;
