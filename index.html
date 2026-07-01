@@ -1575,6 +1575,7 @@
             <canvas id="img-flecha-derecha" width="128" height="128"></canvas>
             <canvas id="img-flecha-abajo" width="128" height="128"></canvas>
             <canvas id="img-flecha-izquierda" width="128" height="128"></canvas>
+            <canvas id="img-yt-play" width="512" height="320"></canvas>
         </a-assets>
         
         <script>
@@ -1665,18 +1666,51 @@
                 ctx.restore();
             }
 
+            function dibujarYtPlay(ctx) {
+                var W = 512, H = 320;
+                ctx.clearRect(0, 0, W, H);
+                // Fondo negro semitransparente
+                ctx.fillStyle = 'rgba(0,0,0,0.72)';
+                ctx.fillRect(0, 0, W, H);
+                // Botón YouTube (rectángulo rojo redondeado)
+                var bx = 136, by = 90, bw = 240, bh = 140, br = 28;
+                ctx.fillStyle = '#FF0000';
+                ctx.beginPath();
+                ctx.moveTo(bx + br, by);
+                ctx.lineTo(bx + bw - br, by);
+                ctx.arcTo(bx + bw, by, bx + bw, by + br, br);
+                ctx.lineTo(bx + bw, by + bh - br);
+                ctx.arcTo(bx + bw, by + bh, bx + bw - br, by + bh, br);
+                ctx.lineTo(bx + br, by + bh);
+                ctx.arcTo(bx, by + bh, bx, by + bh - br, br);
+                ctx.lineTo(bx, by + br);
+                ctx.arcTo(bx, by, bx + br, by, br);
+                ctx.closePath();
+                ctx.fill();
+                // Triángulo play blanco centrado
+                var cx = W / 2, cy = H / 2;
+                ctx.fillStyle = '#FFFFFF';
+                ctx.beginPath();
+                ctx.moveTo(cx - 38, cy - 42);
+                ctx.lineTo(cx - 38, cy + 42);
+                ctx.lineTo(cx + 52, cy);
+                ctx.closePath();
+                ctx.fill();
+            }
+
             [
                 ['img-logo', function (c) { dibujarLogoPiso(c); }],
                 ['img-info-icon',      function (c) { dibujarInfo(c); }],
                 ['img-flecha-plana',   function (c) { dibujarFlecha(c, 0); }],
                 ['img-flecha-derecha', function (c) { dibujarFlecha(c, 90); }],
                 ['img-flecha-abajo',   function (c) { dibujarFlecha(c, 180); }],
-                ['img-flecha-izquierda', function (c) { dibujarFlecha(c, -90); }]
+                ['img-flecha-izquierda', function (c) { dibujarFlecha(c, -90); }],
+                ['img-yt-play', function (c) { dibujarYtPlay(c); }]
             ].forEach(function (d) {
                 var el = document.getElementById(d[0]);
                 if (!el) return;
                 var ctx = el.getContext('2d');
-                ctx.clearRect(0, 0, S, S);
+                ctx.clearRect(0, 0, el.width, el.height);
                 d[1](ctx);
             });
         })();
@@ -2684,20 +2718,15 @@
         <!-- ── PANTALLAS YOUTUBE ─────────────────────────────── -->
         <a-entity class="yt-screen-3d" data-scene="robotica" visible="false"
             position="-12.00 2 -0.22" rotation="0 90 0">
-            <!-- Marco exterior / TV -->
-            <a-box width="4.0" height="2.6" depth="0.10" color="#1a1a1a" material="shader: flat"></a-box>
-            <!-- Pantalla oscura -->
-            <a-plane width="3.6" height="2.2" color="#0d0d0d" material="shader: flat" position="0 0 0.06"></a-plane>
-            <!-- Botón YouTube (rojo) -->
-            <a-plane width="1.1" height="0.78" color="#FF0000" material="shader: flat" position="0 0.12 0.07"></a-plane>
-            <!-- Triángulo play -->
-            <a-text value="▶" color="#FFFFFF" align="center" width="2.8" position="0 0.12 0.08"></a-text>
-            <!-- Título -->
-            <a-text value="360° Universidad ESAN" color="#DDDDDD" align="center" width="4.8" position="0 -0.72 0.07"></a-text>
-            <!-- Área clickable invisible -->
-            <a-plane class="clickable" width="3.6" height="2.2"
-                material="color: #FF0000; opacity: 0.001; shader: flat; transparent: true"
-                position="0 0 0.09"
+            <!-- Botón play YouTube (ocupa toda la pantalla del TV) -->
+            <a-plane src="#img-yt-play" width="4.2" height="2.6"
+                material="shader: flat; transparent: true; side: front"
+                position="0 0 0.06">
+            </a-plane>
+            <!-- Área clickable -->
+            <a-plane class="clickable" width="4.2" height="2.6"
+                material="color: #000; opacity: 0.001; shader: flat; transparent: true"
+                position="0 0 0.07"
                 yt-screen="videoId: nqAgi375ZpM">
             </a-plane>
         </a-entity>
