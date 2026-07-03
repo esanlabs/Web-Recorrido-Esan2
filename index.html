@@ -833,6 +833,7 @@
                 var videoId = this.data.videoId;
                 this.el.addEventListener('click', function (evt) {
                     evt.stopPropagation();
+                    if (_isDragging || _transitioning) return;
                     if (_appReady) abrirYoutube(videoId);
                 });
                 this.el.addEventListener('mouseenter', function () {
