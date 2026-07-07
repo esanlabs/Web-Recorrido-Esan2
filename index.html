@@ -1598,21 +1598,6 @@
 
                 function base() {
                     ctx.clearRect(0, 0, 512, 512);
-                    ctx.save();
-                    ctx.beginPath();
-                    ctx.arc(cx, cy, r, 0, Math.PI * 2);
-                    ctx.closePath();
-                    ctx.fillStyle = '#E3173E';
-                    ctx.fill();
-                    ctx.restore();
-                    ctx.fillStyle = '#696A6D';
-                    ctx.font = 'bold 46px Arial';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.fillText('ESAN', cx, 170);
-                    ctx.fillStyle = '#E3173E';
-                    ctx.font = 'bold 230px Arial';
-                    ctx.fillText('e', cx, 318);
                 }
 
                 base();
@@ -1620,14 +1605,9 @@
                 var img = new Image();
                 img.onload = function () {
                     base();
-                    ctx.save();
-                    ctx.beginPath();
-                    ctx.arc(cx, cy, r - 8, 0, Math.PI * 2);
-                    ctx.clip();
-                    var zoom = 0.99;
+                    var zoom = 1.02;
                     var offset = (512 - 512 * zoom) / 2;
                     ctx.drawImage(img, offset, offset, 512 * zoom, 512 * zoom);
-                    ctx.restore();
                     var el = document.getElementById('logo-piso');
                     if (el) {
                         var mesh = el.getObject3D('mesh');
@@ -1730,7 +1710,7 @@
             src="#img-logo"
             position="0 0.01 0"
             rotation="-90 0 0"
-            radius="1.5"
+            radius="1.2"
             material="shader: flat; transparent: true; opacity: 1; src: #img-logo; side: double; depthTest: false; depthWrite: false"
             no-cull>
         </a-circle>
