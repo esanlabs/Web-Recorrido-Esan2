@@ -418,7 +418,7 @@
                 if (camRot) this.el.setAttribute('rotation', { x: 0, y: camRot.y, z: 0 });
             }
         });
-
+        
 
         AFRAME.registerComponent('card-style', {
             init: function () {
@@ -819,22 +819,32 @@
             var iframe  = document.getElementById('yt-iframe');
             iframe.src  = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1&rel=0';
             modal.classList.add('visible');
+            var scene = document.querySelector('a-scene');
+            if (scene && scene.pause) scene.pause();
         }
         function cerrarYoutube() {
             var modal  = document.getElementById('yt-modal');
             var iframe = document.getElementById('yt-iframe');
             modal.classList.remove('visible');
             iframe.src = '';
+            var scene = document.querySelector('a-scene');
+            if (scene && scene.play) scene.play();
         }
 
         AFRAME.registerComponent('yt-screen', {
-            schema: { videoId: { type: 'string' } },
+            schema: { videoId: { type: 'string' }, newTab: { type: 'boolean', default: false } },
             init: function () {
                 var videoId = this.data.videoId;
+                var newTab  = this.data.newTab;
                 this.el.addEventListener('click', function (evt) {
                     evt.stopPropagation();
                     if (_isDragging || _transitioning) return;
-                    if (_appReady) abrirYoutube(videoId);
+                    if (!_appReady) return;
+                    if (newTab) {
+                        window.open('https://youtu.be/' + videoId, '_blank', 'noopener');
+                    } else {
+                        abrirYoutube(videoId);
+                    }
                 });
                 this.el.addEventListener('mouseenter', function () {
                     this.setAttribute('material', 'opacity', 0.08);
@@ -2692,7 +2702,7 @@
         </a-entity>
 
         <a-entity id="hotspots-robotica" class="grupo-hotspots" visible="false">
-            <a-image src="#img-info-icon" position="0.13 2 -12.00" scale="0.8 0.8 0.8" billboard
+            <a-image src="#img-info-icon" position="11.86 2.6 -1.80" scale="0.8 0.8 0.8" billboard
                 class="clickable icono-hotspot" hotspot-info="target: #panel-info-laboratorio-robotica; action: toggle">
             </a-image>
 
@@ -2726,7 +2736,23 @@
                 material="color: #000; opacity: 0.001; shader: flat; transparent: true; side: double; depthTest: false"
                 position="0 0 0.07"
                 no-cull
-                yt-screen="videoId: nqAgi375ZpM">
+                yt-screen="videoId: kQnFfrh3PwY">
+            </a-plane>
+        </a-entity>
+
+        <a-entity class="yt-screen-3d" data-scene="robotica" visible="false"
+            position="-0.6 3.4 -20" rotation="0 0 0" scale="0.7 0.7 0.7" no-cull>
+            <!-- Botón play YouTube (ocupa toda la pantalla del TV) -->
+            <a-plane src="#img-yt-play" width="8.4" height="5.7"
+                material="shader: flat; transparent: true; side: double; depthTest: false"
+                position="0 0 0.06" no-cull>
+            </a-plane>
+            <!-- Área clickable -->
+            <a-plane class="clickable" width="5.4" height="3.4"
+                material="color: #000; opacity: 0.001; shader: flat; transparent: true; side: double; depthTest: false"
+                position="0 0 0.07"
+                no-cull
+                yt-screen="videoId: RY2D3mWR9So; newTab: true">
             </a-plane>
         </a-entity>
 
