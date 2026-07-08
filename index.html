@@ -834,12 +834,18 @@
         AFRAME.registerComponent('yt-screen', {
             schema: { videoId: { type: 'string' }, newTab: { type: 'boolean', default: false } },
             init: function () {
+                var el = this.el;
                 var videoId = this.data.videoId;
                 var newTab  = this.data.newTab;
-                this.el.addEventListener('click', function (evt) {
+                el.addEventListener('click', function (evt) {
                     evt.stopPropagation();
                     if (_isDragging || _transitioning) return;
                     if (!_appReady) return;
+                    var grupo = el.parentNode;
+                    while (grupo && !(grupo.classList && grupo.classList.contains('yt-screen-3d'))) {
+                        grupo = grupo.parentNode;
+                    }
+                    if (grupo && grupo.object3D && !grupo.object3D.visible) return;
                     if (newTab) {
                         window.open('https://youtu.be/' + videoId, '_blank', 'noopener');
                     } else {
@@ -1479,9 +1485,9 @@
 
         var _categoriasNav = [
             { nombre: 'Exteriores',       escenas: ['fuera','entrada','jardin','fuente','capilla','voley','basquet','explanada','ecoesan'] },
-            { nombre: 'Eventos y Cultura', escenas: ['eventos','butacas','danza','fablab','fablab2'] },
+            { nombre: 'Eventos y Cultura', escenas: ['eventos','butacas','danza'] },
             { nombre: 'Académico',         escenas: ['aula','biblioteca','edificioA','edificioD'] },
-            { nombre: 'Laboratorios',      escenas: ['fisica','quimica','conducta','laboratorio','datalab','robotica'] },
+            { nombre: 'Laboratorios',      escenas: ['fisica','quimica','conducta','laboratorio','datalab','robotica','fablab','fablab2'] },
             { nombre: 'Sala de Estudios',  escenas: ['estudio_pregrado','estudio_mba','estudio_magister','descanso_magister'] },
             { nombre: 'Servicios',         escenas: ['cafeteriaa','cafeteria_interior'] }
         ];
@@ -2736,6 +2742,22 @@
             </a-plane>
         </a-entity>
 
+        <a-entity class="yt-screen-3d" data-scene="fablab" visible="false"
+            position="-0.54 3.8 -11.99" rotation="0 0 0" no-cull>
+            <!-- Botón play YouTube (ocupa toda la pantalla del TV) -->
+            <a-plane src="#img-yt-play" width="8.4" height="5.7"
+                material="shader: flat; transparent: true; side: double; depthTest: false"
+                position="0 0 0.06" no-cull>
+            </a-plane>
+            <!-- Área clickable -->
+            <a-plane class="clickable" width="5.4" height="3.4"
+                material="color: #000; opacity: 0.001; shader: flat; transparent: true; side: double; depthTest: false"
+                position="0 0 0.07"
+                no-cull
+                yt-screen="videoId: sFmth98itGo">
+            </a-plane>
+        </a-entity>
+
         <a-entity id="rig" position="0 1.6 0" auto-height rotation="0 180 0">
             <a-camera id="camara-principal" camera wasd-controls-enabled="false" look-controls="reverseMouseDrag: true">
                 <!-- Cursor para navegador web (desktop). En VR no aplica porque no hay mouse. -->
@@ -2745,10 +2767,6 @@
 
                 <a-entity id="overlay-fade" geometry="primitive: sphere; radius: 0.1"
                     material="color: #000; transparent: true; opacity: 0; side: back" position="0 0 0"></a-entity>
-
-                <a-entity geometry="primitive: ring; radiusInner: 0.015; radiusOuter: 0.025"
-                    material="color: #00BFFF; shader: flat; opacity: 0.8" position="0 0 -1" raycaster="enabled: false">
-                </a-entity>
             </a-camera>
 
             <a-entity laser-controls="hand: right" raycaster="objects: .clickable" vr-controller-listener></a-entity>
