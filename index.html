@@ -575,10 +575,10 @@
         const escenas = {
             'entrada': {
                 imagen: 'imagenes/entrada esan_R.jpg',
-                rotacionSky: '0 90 0',
+                rotacionSky: '0 -90 0',
                 flechas: [
-                    { target: 'jardin', position: '1.42 2 8.15', rotation: '0 -155 0' },
-                    { target: 'fuera', position: '-8.77 -1 -8.19', rotation: '0 0 0' }
+                    { target: 'jardin', position: '-1.42 2 -8.15', rotation: '0 25 0' },
+                    { target: 'fuera', position: '8.77 -1 8.19', rotation: '0 180 0' }
                 ]
             },
             'jardin': {
@@ -1613,7 +1613,7 @@
                     base();
                     var zoom = 1.02;
                     var offset = (512 - 512 * zoom) / 2;
-                    ctx.drawImage(img, offset, offset, 512 * zoom, 512 * zoom);
+                    ctx.drawImage(img, offset,  offset, 512 * zoom, 512 * zoom);
                     var el = document.getElementById('logo-piso');
                     if (el) {
                         var mesh = el.getObject3D('mesh');
@@ -1731,7 +1731,7 @@
         <a-entity id="menu-3d" visible="false" scale="0.85 0.85 0.85"></a-entity>
 
         <a-entity id="hotspots-entrada" class="grupo-hotspots" visible="false">
-            <a-image src="#img-info-icon" position="0.17 2 12.00" scale="0.8 0.8 0.8" billboard
+            <a-image src="#img-info-icon" position="-2.5 2.6 -8.0" scale="0.8 0.8 0.8" billboard
                 class="icono-hotspot" hotspot-info="target: #panel-info-entrada; action: toggle">
             </a-image>
 
@@ -1968,7 +1968,7 @@
                 class="clickable icono-hotspot" hotspot-info="target: #panel-info-proyectos-fablab; action: toggle">
             </a-image>
 
-            <a-entity id="panel-info-proyectos-fablab" data-imagen="imagenes/imgParaCards/fabLabF.webp" visible="false" smooth-follow card-style scale="1 1 1">
+            <a-entity id="panel-info-proyectos-fablab" data-imagen="imagenes/imgParaCards/trabajosFabF.webp" visible="false" smooth-follow card-style scale="1 1 1">
                 <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
 
                 <a-text value="PROYECTOS FABLAB" color="#E3173E" align="center" width="7"
@@ -2034,7 +2034,7 @@
                 class="clickable icono-hotspot" hotspot-info="target: #panel-info-laser-fablab2; action: toggle">
             </a-image>
 
-            <a-entity id="panel-info-laser-fablab2" data-imagen="imagenes/imgParaCards/impresoraF.webp" visible="false" smooth-follow card-style scale="1 1 1">
+            <a-entity id="panel-info-laser-fablab2" data-imagen="imagenes/imgParaCards/cortadoraLaserF.webp" visible="false" smooth-follow card-style scale="1 1 1">
                 <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
 
                 <a-text value="CORTADORA LÁSER" color="#E3173E" align="center" width="7"
@@ -2054,7 +2054,7 @@
                 class="clickable icono-hotspot" hotspot-info="target: #panel-info-soldadura-fablab2; action: toggle">
             </a-image>
 
-            <a-entity id="panel-info-soldadura-fablab2" data-imagen="imagenes/imgParaCards/impresoraF.webp" visible="false" smooth-follow card-style scale="1 1 1">
+            <a-entity id="panel-info-soldadura-fablab2" data-imagen="imagenes/imgParaCards/soldaduraF.webp" visible="false" smooth-follow card-style scale="1 1 1">
                 <a-plane color="#FFFFFF" opacity="0.95" width="4" height="1.6" position="0 0 0"></a-plane>
 
                 <a-text value="ESTACIÓN DE SOLDADURA" color="#E3173E" align="center" width="7"
