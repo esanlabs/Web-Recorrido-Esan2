@@ -550,10 +550,10 @@
         const escenas = {
             'entrada': {
                 imagen: 'imagenes/entrada esan_R.jpg',
-                rotacionSky: '0 90 0',
+                rotacionSky: '0 -90 0',
                 flechas: [
-                    { target: 'jardin', position: '1.42 2 8.15', rotation: '0 -155 0' },
-                    { target: 'fuera', position: '-8.77 -1 -8.19', rotation: '0 0 0' }
+                    { target: 'jardin', position: '-1.42 2 -8.15', rotation: '0 25 0' },
+                    { target: 'fuera', position: '8.77 -1 8.19', rotation: '0 180 0' }
                 ]
             },
             'jardin': {
@@ -1532,7 +1532,7 @@
         <a-entity id="menu-3d" visible="false" scale="0.85 0.85 0.85"></a-entity>
 
         <a-entity id="hotspots-entrada" class="grupo-hotspots" visible="false">
-            <a-image src="#img-info-icon" position="0.17 2 12.00" scale="0.8 0.8 0.8" billboard
+            <a-image src="#img-info-icon" position="-2.5 2 -8.0" scale="0.8 0.8 0.8" billboard
                 class="icono-hotspot" hotspot-info="target: #panel-info-entrada; action: toggle">
             </a-image>
 
