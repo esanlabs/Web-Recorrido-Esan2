@@ -338,6 +338,41 @@
             display: flex; align-items: center; justify-content: center;
         }
         #yt-close:hover { background: var(--color-primario); }
+        /* ── VIDEO 360 MODAL (visor propio, no iframe) ─── */
+        #video360-modal {
+            display: none; position: fixed; inset: 0; z-index: 3500;
+            align-items: center; justify-content: center;
+        }
+        #video360-modal.visible { display: flex; }
+        #video360-backdrop {
+            position: absolute; inset: 0;
+            background: rgba(0,0,0,0.88);
+            backdrop-filter: blur(6px);
+        }
+        #video360-box {
+            position: relative; z-index: 1;
+            width: min(900px, 94vw);
+            aspect-ratio: 16/9;
+            border-radius: 10px; overflow: hidden;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.7);
+            background: #000;
+        }
+        #video360-canvas { width: 100%; height: 100%; display: block; cursor: grab; }
+        #video360-canvas:active { cursor: grabbing; }
+        #video360-close {
+            position: absolute; top: -44px; right: 0;
+            background: rgba(255,255,255,0.15); border: none;
+            color: #fff; font-size: 20px; width: 36px; height: 36px;
+            border-radius: 50%; cursor: pointer; transition: background 0.2s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        #video360-close:hover { background: var(--color-primario); }
+        #video360-hint {
+            position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
+            color: #fff; font-size: 12px; background: rgba(0,0,0,0.5);
+            padding: 5px 12px; border-radius: 20px; pointer-events: none;
+            font-family: var(--font-cuerpo, sans-serif);
+        }
         @keyframes spin360 { to { transform: rotate(360deg); } }
         @keyframes loadBar {
             0%   { width: 0%; margin-left: 0; }
@@ -795,7 +830,7 @@
         document.addEventListener('mousemove', function (e) {
             if (e.buttons > 0) {
                 var dx = e.clientX - _mousedownX, dy = e.clientY - _mousedownY;
-                if (Math.sqrt(dx * dx + dy * dy) > 5) _isDragging = true;
+                if (Math.sqrt(dx * dx + dy * dy) > 12) _isDragging = true;
             }
         });
 
@@ -829,14 +864,108 @@
             iframe.src = '';
             var scene = document.querySelector('a-scene');
             if (scene && scene.play) scene.play();
+            resetYtScreenHover();
+        }
+
+        function resetYtScreenHover() {
+            document.querySelectorAll('.yt-screen-3d .clickable').forEach(function (p) {
+                p.setAttribute('material', 'opacity', 0.001);
+            });
+        }
+
+        var _v360 = { renderer: null, scene: null, camera: null, raf: null, lon: 0, lat: 0, isDown: false, lastX: 0, lastY: 0, resizeHandler: null };
+
+        function _v360Render() {
+            _v360.raf = requestAnimationFrame(_v360Render);
+            var phi = (90 - _v360.lat) * Math.PI / 180;
+            var theta = _v360.lon * Math.PI / 180;
+            var target = new THREE.Vector3(
+                500 * Math.sin(phi) * Math.cos(theta),
+                500 * Math.cos(phi),
+                500 * Math.sin(phi) * Math.sin(theta)
+            );
+            _v360.camera.lookAt(target);
+            _v360.renderer.render(_v360.scene, _v360.camera);
+        }
+
+        function abrirVideo360(videoElId) {
+            if (_transitioning) return;
+            var video = document.getElementById(videoElId);
+            var modal = document.getElementById('video360-modal');
+            var canvas = document.getElementById('video360-canvas');
+            if (!video || !modal || !canvas) return;
+
+            video.onerror = function () {
+                var err = video.error;
+                alert('Error al cargar el video 360 (code ' + (err && err.code) + '): ' + (err && err.message));
+            };
+
+            var mainScene = document.querySelector('a-scene');
+            if (mainScene && mainScene.pause) mainScene.pause();
+            modal.classList.add('visible');
+
+            if (!_v360.renderer) {
+                _v360.renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+                _v360.scene = new THREE.Scene();
+                _v360.camera = new THREE.PerspectiveCamera(80, 16 / 9, 0.1, 1000);
+                var geometry = new THREE.SphereGeometry(500, 60, 40);
+                geometry.scale(-1, 1, 1);
+                var texture = new THREE.VideoTexture(video);
+                var material = new THREE.MeshBasicMaterial({ map: texture });
+                _v360.scene.add(new THREE.Mesh(geometry, material));
+
+                var drag = function (clientX, clientY) {
+                    var dx = clientX - _v360.lastX, dy = clientY - _v360.lastY;
+                    _v360.lastX = clientX; _v360.lastY = clientY;
+                    _v360.lon -= dx * 0.2;
+                    _v360.lat = Math.max(-85, Math.min(85, _v360.lat + dy * 0.2));
+                };
+                canvas.addEventListener('mousedown', function (e) { _v360.isDown = true; _v360.lastX = e.clientX; _v360.lastY = e.clientY; });
+                window.addEventListener('mousemove', function (e) { if (_v360.isDown) drag(e.clientX, e.clientY); });
+                window.addEventListener('mouseup', function () { _v360.isDown = false; });
+                canvas.addEventListener('touchstart', function (e) { _v360.isDown = true; _v360.lastX = e.touches[0].clientX; _v360.lastY = e.touches[0].clientY; });
+                window.addEventListener('touchmove', function (e) { if (_v360.isDown) { drag(e.touches[0].clientX, e.touches[0].clientY); e.preventDefault(); } }, { passive: false });
+                window.addEventListener('touchend', function () { _v360.isDown = false; });
+            }
+
+            function resize() {
+                var w = canvas.clientWidth, h = canvas.clientHeight;
+                if (!w || !h) return;
+                _v360.renderer.setSize(w, h, false);
+                _v360.camera.aspect = w / h;
+                _v360.camera.updateProjectionMatrix();
+            }
+            resize();
+            if (_v360.resizeHandler) window.removeEventListener('resize', _v360.resizeHandler);
+            _v360.resizeHandler = resize;
+            window.addEventListener('resize', _v360.resizeHandler);
+
+            try { video.currentTime = 0; } catch (e) {}
+            video.play().catch(function (err) {
+                alert('No se pudo reproducir el video 360: ' + err.name + ' - ' + err.message);
+            });
+
+            if (_v360.raf) cancelAnimationFrame(_v360.raf);
+            _v360Render();
+        }
+
+        function cerrarVideo360() {
+            var modal = document.getElementById('video360-modal');
+            modal.classList.remove('visible');
+            if (_v360.raf) { cancelAnimationFrame(_v360.raf); _v360.raf = null; }
+            document.querySelectorAll('video').forEach(function (v) { if (v.id && v.id.indexOf('video-') === 0) v.pause(); });
+            var mainScene = document.querySelector('a-scene');
+            if (mainScene && mainScene.play) mainScene.play();
+            resetYtScreenHover();
         }
 
         AFRAME.registerComponent('yt-screen', {
-            schema: { videoId: { type: 'string' }, newTab: { type: 'boolean', default: false } },
+            schema: { videoId: { type: 'string' }, newTab: { type: 'boolean', default: false }, video360: { type: 'string', default: '' } },
             init: function () {
                 var el = this.el;
                 var videoId = this.data.videoId;
                 var newTab  = this.data.newTab;
+                var video360 = this.data.video360;
                 el.addEventListener('click', function (evt) {
                     evt.stopPropagation();
                     if (_isDragging || _transitioning) return;
@@ -846,7 +975,9 @@
                         grupo = grupo.parentNode;
                     }
                     if (grupo && grupo.object3D && !grupo.object3D.visible) return;
-                    if (newTab) {
+                    if (video360) {
+                        abrirVideo360(video360);
+                    } else if (newTab) {
                         window.open('https://youtu.be/' + videoId, '_blank', 'noopener');
                     } else {
                         abrirYoutube(videoId);
@@ -942,7 +1073,11 @@
             _transitioning = true;
             hideCard2D();
             cerrarYoutube();
-            document.querySelectorAll('.yt-screen-3d').forEach(function(s) { s.setAttribute('visible', 'false'); });
+            cerrarVideo360();
+            document.querySelectorAll('.yt-screen-3d').forEach(function(s) {
+                s.setAttribute('visible', 'false');
+                s.querySelectorAll('.clickable').forEach(function (p) { p.classList.remove('clickable'); });
+            });
             var datos = escenas[nombreEscena];
             if (!datos) { _transitioning = false; return; }
 
@@ -995,7 +1130,10 @@
                 freeze.style.opacity    = '0';
                 setTimeout(function() { freeze.style.display = 'none'; freeze.style.backgroundImage = ''; }, 450);
                 contenedorFlechas.setAttribute('visible', 'true');
-                document.querySelectorAll('.yt-screen-3d[data-scene="' + nombreEscena + '"]').forEach(function(s) { s.setAttribute('visible', 'true'); });
+                document.querySelectorAll('.yt-screen-3d[data-scene="' + nombreEscena + '"]').forEach(function(s) {
+                    s.setAttribute('visible', 'true');
+                    s.querySelectorAll('[yt-screen]').forEach(function (p) { p.classList.add('clickable'); });
+                });
                 setTimeout(function() { try { generarHotspots2D(nombreEscena); } catch(e) {} }, 400);
                 actualizarActivoSidenav(nombreEscena);
                 precargarAdyacentes(nombreEscena);
@@ -1593,6 +1731,8 @@
             <canvas id="img-flecha-abajo" width="128" height="128"></canvas>
             <canvas id="img-flecha-izquierda" width="128" height="128"></canvas>
             <canvas id="img-yt-play" width="512" height="320"></canvas>
+            <video id="video-robotica-360" src="https://esanlabs.blob.core.windows.net/media/Dog-Robotica.mp4"
+                crossorigin="anonymous" preload="auto" playsinline webkit-playsinline loop></video>
         </a-assets>
         
         <script>
@@ -2738,7 +2878,7 @@
                 material="color: #000; opacity: 0.001; shader: flat; transparent: true; side: double; depthTest: false"
                 position="0 0 0.07"
                 no-cull
-                yt-screen="videoId: RY2D3mWR9So; newTab: true">
+                yt-screen="video360: video-robotica-360">
             </a-plane>
         </a-entity>
 
@@ -2814,6 +2954,16 @@
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowfullscreen>
             </iframe>
+        </div>
+    </div>
+
+    <!-- ── VIDEO 360 MODAL ────────────────────────────── -->
+    <div id="video360-modal">
+        <div id="video360-backdrop" onclick="cerrarVideo360()"></div>
+        <div id="video360-box">
+            <button id="video360-close" onclick="cerrarVideo360()" aria-label="Cerrar video">✕</button>
+            <canvas id="video360-canvas"></canvas>
+            <div id="video360-hint">🖐 Arrastra para mirar alrededor</div>
         </div>
     </div>
 
